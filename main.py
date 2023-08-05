@@ -1,0 +1,154 @@
+import math
+import os
+import sys
+version = 1.3
+
+
+# Check if required imports are available
+try:
+    from pathlib import Path
+except ImportError:
+    print("Error: The 'pathlib' module is missing. Please install it by running 'pip install pathlib'.")
+    sys.exit(1)
+
+try:
+    import requests
+except ImportError:
+    print("Error: The 'requests' module is missing. Please install it by running 'pip install requests'.")
+    sys.exit(1)
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    print("Error: The 'tqdm' module is missing. Please install it by running 'pip install tqdm'.")
+    sys.exit(1)
+
+try:
+    import py7zr
+except ImportError:
+    print("Error: The 'py7zr' module is missing. Please install it by running 'pip install py7zr'.")
+    sys.exit(1)
+
+try:
+    from getpass import getuser
+except ImportError:
+    print("Error: The 'getpass' module is missing which probably means something is very wrong.")
+    sys.exit(1)
+
+
+
+def download_file(url, destination):
+    response = requests.get(url)
+    if response.status_code != 200:
+        print("Error: Failed to download the file.")
+        return
+    file_path = os.path.join(destination, "url.py")
+    with open(file_path, "wb") as f:
+        f.write(response.content)
+    print("Downloaded server updates.")
+    return file_path
+
+
+from pathlib import Path
+
+def download_and_extract(url, destination):
+    response = requests.get(url, stream=True)
+    if response.status_code != 200:
+        print("Error: Failed to download the archive.")
+        return
+    archive_path = os.path.join(destination, "mod.7z")
+    total_size = int(response.headers.get("content-length", 0))
+    block_size = 1024
+    progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
+    with open(archive_path, "wb") as f:
+        for data in response.iter_content(block_size):
+            progress_bar.update(len(data))
+            f.write(data)
+    progress_bar.close()
+    print("Downloaded the archive.")
+    print("Beginning extraction, this may take a few minutes.")
+    extract_path = destination
+    with py7zr.SevenZipFile(archive_path, mode='r') as z:
+        z.extractall(path=destination)
+    print("Extracted the contents.")
+
+    os.remove(archive_path)  # Delete the archive file
+    print("Deleted the archive file.")
+
+
+if __name__ == "__main__":
+    scriptVariables = "http://100.11.30.28:160/Public/Stellaris/scriptVariables.txt"
+    archive_url = None
+
+    # Download the scriptVariables file
+    current_dir = os.getcwd()
+    scriptVariablesFile = download_file(scriptVariables, current_dir)
+
+    # Execute the url.py file and retrieve variables
+    if scriptVariablesFile:
+        url_module = {}
+        with open(scriptVariablesFile, "r") as f:
+            exec(f.read(), url_module)
+        variables = url_module.copy()
+
+    #Check version number
+    if variables['version']:
+        if variables['version'] != str(version):
+            print("It looks like there is an update available for this script.")
+            print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
+            if math.floor(float(variables['version'])) - math.floor(version) >= 1:
+                print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
+                while True:
+                    response = input("Do you want to continue? (y/n): ").lower()
+                    if response == 'y':
+                        print("Continuing...")
+                        # Perform additional tasks or actions here
+                        break
+                    elif response == 'n':
+                        print("Exiting...")
+                        sys.exit(1)
+                        break
+                    else:
+                        print("Invalid input. Please answer with 'y' or 'n'.")
+            print("Go to the pinned post and redownload the script to grab the new version")
+
+    # Mod selection logic
+    if variables:
+        username = getuser()
+        documents_path = Path.home() / "Documents"
+        destination = documents_path / "Paradox Interactive" / "Stellaris" / "mod"
+
+        directory = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", "Stellaris", "mod")
+
+        if os.path.exists(destination):
+            print("Using C drive for installation")
+        else:
+            print("Using D drive for installation")
+            destination = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", "Stellaris", "mod")
+
+        #Print special message
+        if variables['message']:
+            print(variables['message'])
+
+        print("Mod versions currently available.")
+        for i, key in enumerate(variables['packs'].keys()):
+            print(f"{i}: {key}")
+
+        selection = input("Enter the number on the left corresponding to the mod version you want to use. 0 is the latest version: ")
+        selected_key = list(variables['packs'].keys())[int(selection)]
+
+        print("Selected key:", selected_key)
+
+        #Use the selected key for the upcoming download
+        archive_url = variables['packs'].get(selected_key)[0]
+        download_and_extract(archive_url, destination)
+
+        #Print the hash for this mod pack
+        print("The hash for this mod pack is: " + str(variables['packs'].get(selected_key)[1]))
+
+
+    else:
+        print("Error: Failed to retrieve variables from the server.")
+
+    print("Press any key to exit...")
+    msvcrt.getch()
