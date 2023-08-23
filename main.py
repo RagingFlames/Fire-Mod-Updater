@@ -1,7 +1,7 @@
 import math
 import os
 import sys
-version = 1.3
+version = 2.0
 
 
 # Check if required imports are available
@@ -43,8 +43,8 @@ def download_file(url, destination):
         print("Error: Failed to download the file.")
         return
     file_path = os.path.join(destination, "url.py")
-    with open(file_path, "wb") as f:
-        f.write(response.content)
+    #with open(file_path, "wb") as f:
+    #    f.write(response.content)
     print("Downloaded server updates.")
     return file_path
 
@@ -75,6 +75,34 @@ def download_and_extract(url, destination):
     os.remove(archive_path)  # Delete the archive file
     print("Deleted the archive file.")
 
+def install(game, package):
+    print("hi")
+
+
+def compare_versions(web_version):
+    if variables['version']:
+        if variables['version'] != str(version):
+            print("It looks like there is an update available for this script.")
+            print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
+            local_major, local_minor = map(int, str(version).split('.'))
+            web_major, web_minor = map(int, web_version.split('.'))
+            
+            if web_major - local_major >= 1:
+                print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
+                while True:
+                    response = input("Do you want to continue? (y/n): ").lower()
+                    if response == 'y':
+                        print("Continuing...")
+                        # Perform additional tasks or actions here
+                        break
+                    elif response == 'n':
+                        print("Exiting...")
+                        sys.exit(1)
+                        break
+                    else:
+                        print("Invalid input. Please answer with 'y' or 'n'.")
+            print("Go to the pinned post and redownload the script to grab the new version")
+
 
 if __name__ == "__main__":
     scriptVariables = "http://100.11.30.28:160/Public/Stellaris/scriptVariables.txt"
@@ -91,64 +119,52 @@ if __name__ == "__main__":
             exec(f.read(), url_module)
         variables = url_module.copy()
 
-    #Check version number
-    if variables['version']:
-        if variables['version'] != str(version):
-            print("It looks like there is an update available for this script.")
-            print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
-            if math.floor(float(variables['version'])) - math.floor(version) >= 1:
-                print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
-                while True:
-                    response = input("Do you want to continue? (y/n): ").lower()
-                    if response == 'y':
-                        print("Continuing...")
-                        # Perform additional tasks or actions here
-                        break
-                    elif response == 'n':
-                        print("Exiting...")
-                        sys.exit(1)
-                        break
-                    else:
-                        print("Invalid input. Please answer with 'y' or 'n'.")
-            print("Go to the pinned post and redownload the script to grab the new version")
+    #Check version number.
+    compare_versions(str(variables['version']))
 
     # Mod selection logic
     if variables:
-        username = getuser()
-        documents_path = Path.home() / "Documents"
-        destination = documents_path / "Paradox Interactive" / "Stellaris" / "mod"
-
-        directory = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", "Stellaris", "mod")
-
-        if os.path.exists(destination):
-            print("Using C drive for installation")
-        else:
-            print("Using D drive for installation")
-            destination = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", "Stellaris", "mod")
 
         #Print special message
         if variables['message']:
             print(variables['message'])
-
-        print("Mod versions currently available.")
+        
+        #Select a game
+        print("What game would you like to install a mod for?")
         for i, key in enumerate(variables['packs'].keys()):
             print(f"{i}: {key}")
 
-        selection = input("Enter the number on the left corresponding to the mod version you want to use. 0 is the latest version: ")
-        selected_key = list(variables['packs'].keys())[int(selection)]
+        selection = input("Enter the number on the left corresponding to the game you want to install a modpack for: ")
+        selected_game = list(variables['packs'].keys())[int(selection)]
 
-        print("Selected key:", selected_key)
+        print("Mod packs avalible for:", selected_game)
+
+        #Select a Mod
+        for i, key in enumerate(variables['packs'].get(selected_game).keys()):
+            print(f"{i}: {key}")
+        selection = input("Enter the number on the left corresponding to the mod pack you want to install, 0 is the latest one: ")
+        selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
+
+        #Finding directory
+        username = getuser()
+        documents_path = Path.home() / "Documents"
+        destination = documents_path / "Paradox Interactive" / selected_game / "mod"
+        if os.path.exists(destination):
+            print("Using C drive for installation")
+        else:
+            print("Using D drive for installation")
+            destination = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", selected_game, "mod")
 
         #Use the selected key for the upcoming download
-        archive_url = variables['packs'].get(selected_key)[0]
+        archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
         download_and_extract(archive_url, destination)
 
         #Print the hash for this mod pack
-        print("The hash for this mod pack is: " + str(variables['packs'].get(selected_key)[1]))
+        print("The hash for this mod pack is: " + str(variables['packs'].get(selected_game).get(selected_mod)[1]))
 
 
     else:
         print("Error: Failed to retrieve variables from the server.")
 
-    print("Press any key to exit...")
-    msvcrt.getch()
+    print("Finished!")
+    sys.exit(1)

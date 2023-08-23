@@ -1,6 +1,13 @@
 message = ""
-version = "1.2"
+version = "2.0"
 packs = {
-    "v38": ["http://100.11.30.28:160/Public/Stellaris/3.8/mod.7z", "a85f"],
-    "v37": ["http://100.11.30.28:160/Public/Stellaris/3.7/Tyler%20Comp%2037x.7z", "UNKOWN"],
+    "Stellaris": {
+        "v38": ["http://100.11.30.28:160/Public/Stellaris/3.8/mod.7z", "a85f"],
+        "v37": ["http://100.11.30.28:160/Public/Stellaris/3.7/Tyler%20Comp%2037x.7z", "UNKNOWN"],
+    },
+    "Hearts of Iron IV": {
+        "invoke": ["http://100.11.30.28:160/Public/Hearts%20of%20Iron%20IV/invoke.7z", "lmao"]
+
+    }
+
 }
