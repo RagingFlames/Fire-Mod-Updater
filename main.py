@@ -1,7 +1,8 @@
 import math
 import os
 import sys
-version = 2.0
+version = 2.1
+
 
 
 # Check if required imports are available
@@ -38,8 +39,8 @@ except ImportError:
 
 
 def download_file(url, destination):
-    response = requests.get(url)
-    if response.status_code != 200:
+    download_response = requests.get(url)
+    if download_response.status_code != 200:
         print("Error: Failed to download the file.")
         return
     file_path = os.path.join(destination, "url.py")
@@ -52,32 +53,27 @@ def download_file(url, destination):
 from pathlib import Path
 
 def download_and_extract(url, destination):
-    response = requests.get(url, stream=True)
-    if response.status_code != 200:
+    download_extract_response = requests.get(url, stream=True)
+    if download_extract_response.status_code != 200:
         print("Error: Failed to download the archive.")
         return
     archive_path = os.path.join(destination, "mod.7z")
-    total_size = int(response.headers.get("content-length", 0))
+    total_size = int(download_extract_response.headers.get("content-length", 0))
     block_size = 1024
     progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
     with open(archive_path, "wb") as f:
-        for data in response.iter_content(block_size):
+        for data in download_extract_response.iter_content(block_size):
             progress_bar.update(len(data))
             f.write(data)
     progress_bar.close()
     print("Downloaded the archive.")
     print("Beginning extraction, this may take a few minutes.")
-    extract_path = destination
     with py7zr.SevenZipFile(archive_path, mode='r') as z:
         z.extractall(path=destination)
     print("Extracted the contents.")
 
     os.remove(archive_path)  # Delete the archive file
     print("Deleted the archive file.")
-
-def install(game, package):
-    print("hi")
-
 
 def compare_versions(web_version):
     if variables['version']:
@@ -98,7 +94,6 @@ def compare_versions(web_version):
                     elif response == 'n':
                         print("Exiting...")
                         sys.exit(1)
-                        break
                     else:
                         print("Invalid input. Please answer with 'y' or 'n'.")
             print("Go to the pinned post and redownload the script to grab the new version")
