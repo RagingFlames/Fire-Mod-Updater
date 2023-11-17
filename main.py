@@ -1,7 +1,7 @@
 import math
 import os
 import sys
-version = 2.1
+version = 2.2
 
 
 
@@ -44,8 +44,8 @@ def download_file(url, destination):
         print("Error: Failed to download the file.")
         return
     file_path = os.path.join(destination, "url.py")
-    #with open(file_path, "wb") as f:
-    #    f.write(response.content)
+    with open(file_path, "wb") as f:
+        f.write(download_response.content)
     print("Downloaded server updates.")
     return file_path
 
