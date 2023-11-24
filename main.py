@@ -147,8 +147,11 @@ if __name__ == "__main__":
         if os.path.exists(destination):
             print("Using C drive for installation")
         else:
-            print("Using D drive for installation")
             destination = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", selected_game, "mod")
+            if os.path.exists(destination):
+                print("Using D drive for installation")
+            else:
+                print("I couldn't find your game folder to install mods")
 
         #Use the selected key for the upcoming download
         archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
