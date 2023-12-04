@@ -100,7 +100,7 @@ def compare_versions(web_version):
 
 
 if __name__ == "__main__":
-    scriptVariables = "http://100.11.30.28:160/Public/Stellaris/scriptVariables.txt"
+    scriptVariables = "http://96.227.58.11:160/Public/Stellaris/scriptVariables.txt"
     archive_url = None
 
     # Download the scriptVariables file
