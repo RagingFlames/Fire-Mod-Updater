@@ -1,7 +1,7 @@
 import math
 import os
 import sys
-version = 2.2
+version = 2.3
 
 
 
@@ -82,7 +82,7 @@ def compare_versions(web_version):
             print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
             local_major, local_minor = map(int, str(version).split('.'))
             web_major, web_minor = map(int, web_version.split('.'))
-            
+
             if web_major - local_major >= 1:
                 print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
                 while True:
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         #Print special message
         if variables['message']:
             print(variables['message'])
-        
+
         #Select a game
         print("What game would you like to install a mod for?")
         for i, key in enumerate(variables['packs'].keys()):
@@ -152,6 +152,8 @@ if __name__ == "__main__":
                 print("Using D drive for installation")
             else:
                 print("I couldn't find your game folder to install mods")
+		print("The mod pack will be downloaded to the current directory")
+		destination = os.getcwd()
 
         #Use the selected key for the upcoming download
         archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
@@ -160,9 +162,9 @@ if __name__ == "__main__":
         #Print the hash for this mod pack
         print("The hash for this mod pack is: " + str(variables['packs'].get(selected_game).get(selected_mod)[1]))
 
-
     else:
         print("Error: Failed to retrieve variables from the server.")
 
     print("Finished!")
+    input("Press Enter to close the program...")
     sys.exit(1)
