@@ -1,9 +1,8 @@
 import math
 import os
 import sys
+
 version = 2.3
-
-
 
 # Check if required imports are available
 try:
@@ -37,7 +36,6 @@ except ImportError:
     sys.exit(1)
 
 
-
 def download_file(url, destination):
     download_response = requests.get(url)
     if download_response.status_code != 200:
@@ -51,6 +49,7 @@ def download_file(url, destination):
 
 
 from pathlib import Path
+
 
 def download_and_extract(url, destination):
     download_extract_response = requests.get(url, stream=True)
@@ -75,11 +74,14 @@ def download_and_extract(url, destination):
     os.remove(archive_path)  # Delete the archive file
     print("Deleted the archive file.")
 
+
 def compare_versions(web_version):
     if variables['version']:
         if variables['version'] != str(version):
             print("It looks like there is an update available for this script.")
             print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
+            print("Go to the following website to get the latest version")
+            print("https://github.com/RagingFlames/Paradox-Mod-Updater/releases")
             local_major, local_minor = map(int, str(version).split('.'))
             web_major, web_minor = map(int, web_version.split('.'))
 
@@ -100,7 +102,7 @@ def compare_versions(web_version):
 
 
 if __name__ == "__main__":
-    scriptVariables = "http://96.227.58.11:160/Public/Stellaris/scriptVariables.txt"
+    scriptVariables = "http://96.227.58.11:160/Public/scriptVariables.txt"
     archive_url = None
 
     # Download the scriptVariables file
@@ -114,17 +116,17 @@ if __name__ == "__main__":
             exec(f.read(), url_module)
         variables = url_module.copy()
 
-    #Check version number.
+    # Check version number.
     compare_versions(str(variables['version']))
 
     # Mod selection logic
     if variables:
 
-        #Print special message
+        # Print special message
         if variables['message']:
             print(variables['message'])
 
-        #Select a game
+        # Select a game
         print("What game would you like to install a mod for?")
         for i, key in enumerate(variables['packs'].keys()):
             print(f"{i}: {key}")
@@ -132,15 +134,15 @@ if __name__ == "__main__":
         selection = input("Enter the number on the left corresponding to the game you want to install a modpack for: ")
         selected_game = list(variables['packs'].keys())[int(selection)]
 
-        print("Mod packs avalible for:", selected_game)
+        print("Mod packs available for:", selected_game)
 
-        #Select a Mod
+        # Select a Mod
         for i, key in enumerate(variables['packs'].get(selected_game).keys()):
             print(f"{i}: {key}")
         selection = input("Enter the number on the left corresponding to the mod pack you want to install, 0 is the latest one: ")
         selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
 
-        #Finding directory
+        # Finding directory
         username = getuser()
         documents_path = Path.home() / "Documents"
         destination = documents_path / "Paradox Interactive" / selected_game / "mod"
@@ -151,15 +153,15 @@ if __name__ == "__main__":
             if os.path.exists(destination):
                 print("Using D drive for installation")
             else:
-                print("I couldn't find your game folder to install mods")
-		print("The mod pack will be downloaded to the current directory")
-		destination = os.getcwd()
+                print("I couldn't find your game folder on your C or D drive")
+                print("The mod pack will be downloaded to the current directory")
+                destination = os.getcwd()
 
-        #Use the selected key for the upcoming download
+        # Use the selected key for the upcoming download
         archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
         download_and_extract(archive_url, destination)
 
-        #Print the hash for this mod pack
+        # Print the hash for this mod pack
         print("The hash for this mod pack is: " + str(variables['packs'].get(selected_game).get(selected_mod)[1]))
 
     else:
