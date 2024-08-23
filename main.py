@@ -115,6 +115,9 @@ if __name__ == "__main__":
         with open(scriptVariablesFile, "r") as f:
             exec(f.read(), url_module)
         variables = url_module.copy()
+    else:
+        print("An error has occurred, I could not acquire the url file.")
+        exit(9)
 
     # Check version number.
     compare_versions(str(variables['version']))
