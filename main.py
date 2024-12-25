@@ -41,7 +41,7 @@ def download_file(url, destination):
     if download_response.status_code != 200:
         print("Error: Failed to download the file.")
         return
-    file_path = os.path.join(destination, "url.py")
+    file_path = os.path.join(destination, "scriptVariables.py")
     with open(file_path, "wb") as f:
         f.write(download_response.content)
     print("Downloaded server updates.")
@@ -102,21 +102,21 @@ def compare_versions(web_version):
 
 
 if __name__ == "__main__":
-    scriptVariables = "http://96.227.58.11:160/Public/scriptVariables.txt"
+    scriptVariables = "https://downloads.mclemo.re/Public/ModUpdater/scriptVariables.py"
     archive_url = None
 
     # Download the scriptVariables file
     current_dir = os.getcwd()
     scriptVariablesFile = download_file(scriptVariables, current_dir)
 
-    # Execute the url.py file and retrieve variables
+    # Execute the scriptVariables.py file and retrieve variables
     if scriptVariablesFile:
         url_module = {}
         with open(scriptVariablesFile, "r") as f:
             exec(f.read(), url_module)
         variables = url_module.copy()
     else:
-        print("An error has occurred, I could not acquire the url file.")
+        print("An error has occurred, I could not acquire the variable file.")
         exit(9)
 
     # Check version number.
