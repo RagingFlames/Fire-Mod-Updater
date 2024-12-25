@@ -52,31 +52,34 @@ from pathlib import Path
 
 
 def download_and_extract(url, destination):
-    download_extract_response = requests.get(url, stream=True)
-    if download_extract_response.status_code != 200:
-        print("Error: Failed to download the archive.")
-        return
-    archive_path = os.path.join(destination, "mod.7z")
-    total_size = int(download_extract_response.headers.get("content-length", 0))
-    block_size = 1024
-    progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
-    with open(archive_path, "wb") as f:
-        for data in download_extract_response.iter_content(block_size):
-            progress_bar.update(len(data))
-            f.write(data)
-    progress_bar.close()
-    print("Downloaded the archive.")
-    print("Beginning extraction, this may take a few minutes.")
-    with py7zr.SevenZipFile(archive_path, mode='r') as z:
-        z.extractall(path=destination)
-    print("Extracted the contents.")
+    try:
+        download_extract_response = requests.get(url, stream=True)
+        if download_extract_response.status_code != 200:
+            print("Error: Failed to download the archive.")
+            return
+        archive_path = os.path.join(destination, "mod.7z")
+        total_size = int(download_extract_response.headers.get("content-length", 0))
+        block_size = 1024
+        progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
+        with open(archive_path, "wb") as f:
+            for data in download_extract_response.iter_content(block_size):
+                progress_bar.update(len(data))
+                f.write(data)
+        progress_bar.close()
+        print("Downloaded the archive.")
+        print("Beginning extraction, this may take a few minutes.")
+        with py7zr.SevenZipFile(archive_path, mode='r') as z:
+            z.extractall(path=destination)
+        print("Extracted the contents.")
 
-    os.remove(archive_path)  # Delete the archive file
-    print("Deleted the archive file.")
+        os.remove(archive_path)  # Delete the archive file
+        print("Deleted the archive file.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 
 def compare_versions(web_version):
-    if variables['version']:
+    if 'version' in variables:
         if variables['version'] != str(version):
             print("It looks like there is an update available for this script.")
             print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
@@ -98,8 +101,6 @@ def compare_versions(web_version):
                         sys.exit(1)
                     else:
                         print("Invalid input. Please answer with 'y' or 'n'.")
-            print("Go to the pinned post and redownload the script to grab the new version")
-
 
 if __name__ == "__main__":
     scriptVariables = "https://downloads.mclemo.re/Public/ModUpdater/scriptVariables.py"
@@ -162,7 +163,10 @@ if __name__ == "__main__":
 
         # Use the selected key for the upcoming download
         archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
-        download_and_extract(archive_url, destination)
+        try:
+            download_and_extract(archive_url, destination)
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
         # Print the hash for this mod pack
         print("The hash for this mod pack is: " + str(variables['packs'].get(selected_game).get(selected_mod)[1]))
