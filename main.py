@@ -36,16 +36,22 @@ except ImportError:
     sys.exit(1)
 
 
-def download_file(url, destination):
-    download_response = requests.get(url)
-    if download_response.status_code != 200:
-        print("Error: Failed to download the file.")
-        return
-    file_path = os.path.join(destination, "scriptVariables.py")
-    with open(file_path, "wb") as f:
-        f.write(download_response.content)
-    print("Downloaded server updates.")
-    return file_path
+import os
+
+def download_file(url: str, destination: str) -> bool:
+    try:
+        response = requests.get(url)
+        if response.status_code != 200:
+            print("Error: Failed to download the file.")
+            return False
+        file_path = os.path.join(destination, "scriptVariables.py")
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+        print("Downloaded server updates.")
+        return True
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
 
 
 from pathlib import Path
@@ -177,3 +183,4 @@ if __name__ == "__main__":
     print("Finished!")
     input("Press Enter to close the program...")
     sys.exit(1)
+
