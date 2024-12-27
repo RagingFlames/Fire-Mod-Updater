@@ -148,7 +148,8 @@ if __name__ == "__main__":
 
         # Select a Mod
         for i, key in enumerate(variables['packs'].get(selected_game).keys()):
-            print(f"{i}: {key}")
+            if key != 'meta':  # We don't want to print the meta information
+                print(f"{i}: {key}")
         selection = input("Enter the number on the left corresponding to the mod pack you want to install, 0 is the latest one: ")
         selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
 
