@@ -18,25 +18,6 @@ except ImportError:
     print("Error: The 'requests' module is missing. Please install it by running 'pip install requests'.")
     sys.exit(1)
 
-try:
-    from tqdm import tqdm
-except ImportError:
-    print("Error: The 'tqdm' module is missing. Please install it by running 'pip install tqdm'.")
-    sys.exit(1)
-
-try:
-    import py7zr
-except ImportError:
-    print("Error: The 'py7zr' module is missing. Please install it by running 'pip install py7zr'.")
-    sys.exit(1)
-
-try:
-    from getpass import getuser
-except ImportError:
-    print("Error: The 'getpass' module is missing which probably means something is very wrong.")
-    sys.exit(1)
-
-
 import os
 
 def download_file(url: str, destination: str) -> bool:
@@ -53,10 +34,6 @@ def download_file(url: str, destination: str) -> bool:
     except Exception as e:
         print(f"An error occurred: {e}")
         return False
-
-
-from pathlib import Path
-
 
 def compare_versions(web_version):
     if 'version' in variables:
