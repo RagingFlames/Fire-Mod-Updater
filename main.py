@@ -3,7 +3,7 @@ import os
 import sys
 import modinstall
 
-version = 2.3
+version = 3.0
 
 # Check if required imports are available
 try:

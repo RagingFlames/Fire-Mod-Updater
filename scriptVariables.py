@@ -1,5 +1,5 @@
 message = ""
-version = "2.3"
+version = "3.0"
 packs = {
     "Stellaris": {
         "invoke": ["example.com/Public/Hearts%20of%20Iron%20IV/invoke.7z", "lmao"],
