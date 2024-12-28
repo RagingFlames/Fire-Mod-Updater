@@ -58,33 +58,6 @@ def download_file(url: str, destination: str) -> bool:
 from pathlib import Path
 
 
-def download_and_extract(url, destination):
-    try:
-        download_extract_response = requests.get(url, stream=True)
-        if download_extract_response.status_code != 200:
-            print("Error: Failed to download the archive.")
-            return
-        archive_path = os.path.join(destination, "mod.7z")
-        total_size = int(download_extract_response.headers.get("content-length", 0))
-        block_size = 1024
-        progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
-        with open(archive_path, "wb") as f:
-            for data in download_extract_response.iter_content(block_size):
-                progress_bar.update(len(data))
-                f.write(data)
-        progress_bar.close()
-        print("Downloaded the archive.")
-        print("Beginning extraction, this may take a few minutes.")
-        with py7zr.SevenZipFile(archive_path, mode='r') as z:
-            z.extractall(path=destination)
-        print("Extracted the contents.")
-
-        os.remove(archive_path)  # Delete the archive file
-        print("Deleted the archive file.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
 def compare_versions(web_version):
     if 'version' in variables:
         if variables['version'] != str(version):
@@ -132,7 +105,7 @@ if __name__ == "__main__":
 
     # Mod selection logic
     if variables:
-        modinstall.all
+        modinstall.all(variables)
     else:
         print("Error: Failed to retrieve variables from the server.")
 
