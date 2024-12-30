@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import py7zr
 import tqdm
+import requests
 
 def all(variables):
     # Print special message
@@ -26,25 +27,14 @@ def all(variables):
     selection = input("Enter the number on the left corresponding to the mod pack you want to install, 0 is the latest one: ")
     selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
 
-    # Finding directory
-    username = getuser()
-    documents_path = Path.home() / "Documents"
-    destination = documents_path / "Paradox Interactive" / selected_game / "mod"
-    if os.path.exists(destination):
-        print("Using C drive for installation")
-    else:
-        destination = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", selected_game, "mod")
-        if os.path.exists(destination):
-            print("Using D drive for installation")
-        else:
-            print("I couldn't find your game folder on your C or D drive")
-            print("The mod pack will be downloaded to the current directory")
-            destination = os.getcwd()
+    # Finding install directory
+    install_location = variables['packs'].get(selected_game).get('meta').get('install_location')
+    install_location = install_location.replace('~', str(os.path.expanduser('~')))
 
     # Use the selected key for the upcoming download
     archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
     try:
-        download_and_extract(archive_url, destination)
+        download_and_extract(archive_url, install_location)
     except Exception as e:
         print(f"An error occurred: {e}")
 

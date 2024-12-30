@@ -12,12 +12,6 @@ except ImportError:
     print("Error: The 'pathlib' module is missing. Please install it by running 'pip install pathlib'.")
     sys.exit(1)
 
-try:
-    import requests
-except ImportError:
-    print("Error: The 'requests' module is missing. Please install it by running 'pip install requests'.")
-    sys.exit(1)
-
 import os
 
 def download_file(url: str, destination: str) -> bool:
@@ -69,10 +63,9 @@ if __name__ == "__main__":
 
     # Execute the scriptVariables.py file and retrieve variables
     if scriptVariablesFile:
-        url_module = {}
+        variables = {}
         with open(scriptVariablesFile, "r") as f:
-            exec(f.read(), url_module)
-        variables = url_module.copy()
+            exec(f.read(), variables)
     else:
         print("An error has occurred, I could not acquire the variable file.")
         exit(9)
