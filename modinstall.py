@@ -58,6 +58,16 @@ def download_and_extract(url, destination):
 def get_install_directory(game_variables):
     install_directory = game_variables.get('install_location')
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
+
+    while not os.path.isdir(install_directory):
+        print(f"The directory '{install_directory}' does not exist.")
+        print("This probably means you have a weird windows drive setup (Like having My Documents on a drive other than C)")
+        directory = input("Please copy and paste the correct mod directory for your game, or push enter to just have the modpack download to the current directory: ")
+        # Use the current directory if the user presses Enter
+        if directory.strip() == "":
+            directory = os.getcwd()
+            break
+        
     return install_directory
 
 def menu_navigator(variables):
