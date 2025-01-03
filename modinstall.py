@@ -5,40 +5,27 @@ import py7zr
 import tqdm
 import requests
 
+excluded_menu_items = ['prompt', 'meta']
+
 def install(variables):
     # Print special message
     if variables['message']:
         print(variables['message'])
 
-    # Select a game
-    print("What game would you like to install a mod for?")
-    for i, key in enumerate(variables['packs'].keys()):
-        print(f"{i}: {key}")
+    meta, selected_mod = menu_navigator(variables)
 
-    selection = input("Enter the number on the left corresponding to the game you want to install a modpack for: ")
-    selected_game = list(variables['packs'].keys())[int(selection)]
-
-    print("Mod packs available for:", selected_game)
-
-    # Select a Mod
-    for i, key in enumerate(variables['packs'].get(selected_game).keys()):
-        if key != 'meta':  # We don't want to print the meta information
-            print(f"{i}: {key}")
-    selection = input("Enter the number on the left corresponding to the mod pack you want to install, 0 is the latest one: ")
-    selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
-
-    # Finding install directory
-    install_directory = get_install_directory(variables['packs'].get(selected_game).get('meta'))
+    # Finding install directoryselected_game
+    install_directory = get_install_directory(meta)
 
     # Use the selected key for the upcoming download
-    archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
+    archive_url = selected_mod[0]
     try:
         download_and_extract(archive_url, install_directory)
     except Exception as e:
         print(f"An error occurred: {e}")
 
     # Print the hash for this mod pack
-    print("The hash for this mod pack is: " + str(variables['packs'].get(selected_game).get(selected_mod)[1]))
+    print("The hash for this mod pack is: " + str(selected_mod[1]))
 
 def download_and_extract(url, destination):
     try:
@@ -70,3 +57,27 @@ def get_install_directory(game_variables):
     install_directory = game_variables.get('install_location')
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
     return install_directory
+
+def menu_navigator(variables):
+    navigate = True
+    variables = variables['packs']
+    meta = {}
+    while navigate:
+        if not isinstance(variables, list):
+            if "prompt" in variables:
+                print(variables["prompt"])
+            else:
+                print("make selection")
+            for i, key in enumerate(variables.keys()):
+                if key not in excluded_menu_items:  # Make sure the key isn't an excluded item
+                    print(f"{i}: {key}")
+            selection = input("Enter the number on the left corresponding to the item you want: ")
+            selected_item = list(variables.keys())[int(selection)]
+            # Grab the latest metadata
+            if "meta" in variables:
+                meta = variables["meta"]
+            # Set the new variables value
+            variables = variables[selected_item]
+        else:
+            navigate = False
+    return meta, variables
