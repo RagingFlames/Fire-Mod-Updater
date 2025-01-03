@@ -56,6 +56,7 @@ def download_and_extract(url, destination):
         print(f"An error occurred: {e}")
 
 def get_install_directory(meta_data, config_data):
+    custom_install = False
     install_directory = meta_data.get('install_location')
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
 
@@ -64,7 +65,6 @@ def get_install_directory(meta_data, config_data):
     if game_name in config_data["custom_install_locations"]:
         install_directory = config_data["custom_install_locations"][game_name]
 
-
     while not os.path.isdir(install_directory):
         print(f"The directory '{install_directory}' does not exist.")
         print("This probably means you have a weird windows drive setup (Like having My Documents on a drive other than C)")
@@ -72,8 +72,26 @@ def get_install_directory(meta_data, config_data):
         # Use the current directory if the user presses Enter
         if directory.strip() == "":
             directory = os.getcwd()
+            custom_install = True
             break
         
+    if custom_install:
+        print(f"Selected install location: {install_directory}")
+        
+        # Ask user if they want to write this custom directory to the config file
+        response = input("Do you want to save this custom install location to your config? (y/n): ").lower()
+        while response not in ['y', 'n']:
+            print("Invalid input. Please answer with 'y' or 'n'.")
+            response = input("Do you want to save this custom install location to your config? (y/n): ").lower()
+
+        if response == 'y':
+            # Update the config file
+            game_name = meta_data.get("name")
+            config_data["custom_install_locations"][game_name] = install_directory
+            with open(RUNTIME_CONFIG_PATH, "w") as f:
+                json.dump(config_data, f, indent=4)
+            print(f"Saved custom install location for {game_name} to your config file.")
+
     return install_directory
 
 def menu_navigator(variables):
