@@ -5,7 +5,7 @@ import py7zr
 import tqdm
 import requests
 
-def all(variables):
+def install(variables):
     # Print special message
     if variables['message']:
         print(variables['message'])
@@ -28,13 +28,12 @@ def all(variables):
     selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
 
     # Finding install directory
-    install_location = variables['packs'].get(selected_game).get('meta').get('install_location')
-    install_location = install_location.replace('~', str(os.path.expanduser('~')))
+    install_directory = get_install_directory(variables['packs'].get(selected_game).get('meta'))
 
     # Use the selected key for the upcoming download
     archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
     try:
-        download_and_extract(archive_url, install_location)
+        download_and_extract(archive_url, install_directory)
     except Exception as e:
         print(f"An error occurred: {e}")
 
@@ -66,3 +65,8 @@ def download_and_extract(url, destination):
         print("Deleted the archive file.")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+def get_install_directory(game_variables):
+    install_directory = game_variables.get('install_location')
+    install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
+    return install_directory
