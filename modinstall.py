@@ -4,8 +4,10 @@ from pathlib import Path
 import py7zr
 import tqdm
 import requests
+from typing import Final
 
-excluded_menu_items = ['prompt', 'meta']
+# Don't print these items as options in the menu navigator
+EXCLUDED_MENU_ITEMS: Final[list] = ['prompt', 'meta']
 
 def install(variables):
     # Print special message
@@ -69,7 +71,7 @@ def menu_navigator(variables):
             else:
                 print("make selection")
             for i, key in enumerate(variables.keys()):
-                if key not in excluded_menu_items:  # Make sure the key isn't an excluded item
+                if key not in EXCLUDED_MENU_ITEMS:  # Make sure the key isn't an excluded item
                     print(f"{i}: {key}")
             selection = input("Enter the number on the left corresponding to the item you want: ")
             selected_item = list(variables.keys())[int(selection)]
