@@ -27,7 +27,7 @@ def read_config_file():
         print("An error occurred:", str(e))
     return config_data
 
-def write_config(file_path, data):
+def write_config(file_path):
     # Default dictionary to populate the JSON file if it doesn't exist
     DEFAULT_CONFIG: Final = {
         "scriptURL": "example.com",
