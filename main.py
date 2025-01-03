@@ -35,7 +35,7 @@ def write_config(file_path):
     }
     # Write the default config to the file
     with open(file_path, "w") as file:
-        json.dump(data, file, indent=4)
+        json.dump(DEFAULT_CONFIG, file, indent=4)
     print("Please go update your config with the default settings your group uses.")
     input("Press any key to exit...")
     sys.exit(0)
