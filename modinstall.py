@@ -55,8 +55,8 @@ def download_and_extract(url, destination):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def get_install_directory(game_variables):
-    install_directory = game_variables.get('install_location')
+def get_install_directory(meta_data):
+    install_directory = meta_data.get('install_location')
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
 
     while not os.path.isdir(install_directory):
