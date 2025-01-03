@@ -2,18 +2,48 @@ import math
 import os
 import sys
 import json
+from typing import Final
+from pathlib import Path
 import modinstall
 
 version = 3.0
 
-# Check if required imports are available
-try:
-    from pathlib import Path
-except ImportError:
-    print("Error: The 'pathlib' module is missing. Please install it by running 'pip install pathlib'.")
-    sys.exit(1)
-
 import os
+
+def manage_config_file():
+    # Find the config file
+    runtime_config_path = os.path.join(os.path.expanduser("~"), ".modinstallrc")
+    
+    # Default dictionary to populate the JSON file if it doesn't exist
+    DEFAULT_CONFIG: Final = {
+        "scriptURL": "example.com"
+    }
+
+    try:
+        # Check if the file exists
+        if os.path.exists(runtime_config_path):
+            with open(runtime_config_path, "r") as file:
+                try:
+                    config_data = json.load(file)
+                except json.JSONDecodeError:
+                    print("Error decoding JSON, resetting to default config.")
+                    config_data = DEFAULT_CONFIG
+                    write_config(runtime_config_path, config_data)
+        else:
+            print(f"Config file not found. Creating {runtime_config_path} with default values.")
+            config_data = DEFAULT_CONFIG
+            write_config(runtime_config_path, config_data)
+    except Exception as e:
+        print("An error occurred:", str(e))
+    return config_data
+
+def write_config(file_path, data):
+    # Write the default config to the file
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)
+    print("Please go update your config with the default settings your group uses.")
+    input("Press any key to exit...")
+    sys.exit(0)
 
 def download_file(url: str, destination: str) -> bool:
     try:
@@ -55,8 +85,9 @@ def compare_versions(web_version):
                         print("Invalid input. Please answer with 'y' or 'n'.")
 
 if __name__ == "__main__":
+    # Open the config file
+    config_data = manage_config_file()
     scriptVariables = "https://downloads.mclemo.re/Public/ModUpdater/scriptVariables.py"
-    archive_url = None
 
     # Download the scriptVariables file
     current_dir = os.getcwd()
@@ -82,5 +113,5 @@ if __name__ == "__main__":
 
     print("Finished!")
     input("Press Enter to close the program...")
-    sys.exit(1)
+    sys.exit(0)
 
