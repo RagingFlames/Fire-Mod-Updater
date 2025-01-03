@@ -5,39 +5,34 @@ import json
 from typing import Final
 from pathlib import Path
 import modinstall
-
-version = 3.0
-
 import os
 
-def manage_config_file():
-    # Find the config file
-    runtime_config_path = os.path.join(os.path.expanduser("~"), ".modinstallrc")
-    
-    # Default dictionary to populate the JSON file if it doesn't exist
-    DEFAULT_CONFIG: Final = {
-        "scriptURL": "example.com"
-    }
+VERSION: Final[float] = 3.0
+RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
+def read_config_file(): 
     try:
         # Check if the file exists
-        if os.path.exists(runtime_config_path):
-            with open(runtime_config_path, "r") as file:
+        if os.path.exists(RUNTIME_CONFIG_PATH):
+            with open(RUNTIME_CONFIG_PATH, "r") as file:
                 try:
                     config_data = json.load(file)
                 except json.JSONDecodeError:
                     print("Error decoding JSON, resetting to default config.")
-                    config_data = DEFAULT_CONFIG
-                    write_config(runtime_config_path, config_data)
+                    write_config(RUNTIME_CONFIG_PATH)
         else:
-            print(f"Config file not found. Creating {runtime_config_path} with default values.")
-            config_data = DEFAULT_CONFIG
-            write_config(runtime_config_path, config_data)
+            print(f"Config file not found. Creating {RUNTIME_CONFIG_PATH} with default values.")
+            write_config(RUNTIME_CONFIG_PATH)
     except Exception as e:
         print("An error occurred:", str(e))
     return config_data
 
 def write_config(file_path, data):
+    # Default dictionary to populate the JSON file if it doesn't exist
+    DEFAULT_CONFIG: Final = {
+        "scriptURL": "example.com",
+        "custom_install_locations": {}
+    }
     # Write the default config to the file
     with open(file_path, "w") as file:
         json.dump(data, file, indent=4)
@@ -62,12 +57,12 @@ def download_file(url: str, destination: str) -> bool:
 
 def compare_versions(web_version):
     if 'version' in variables:
-        if variables['version'] != str(version):
+        if variables['version'] != str(VERSION):
             print("It looks like there is an update available for this script.")
-            print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
+            print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
             print("Go to the following website to get the latest version")
             print("https://github.com/RagingFlames/Paradox-Mod-Updater/releases")
-            local_major, local_minor = map(int, str(version).split('.'))
+            local_major, local_minor = map(int, str(VERSION).split('.'))
             web_major, web_minor = map(int, web_version.split('.'))
 
             if web_major - local_major >= 1:
@@ -86,8 +81,8 @@ def compare_versions(web_version):
 
 if __name__ == "__main__":
     # Open the config file
-    config_data = manage_config_file()
-    scriptVariables = "https://downloads.mclemo.re/Public/ModUpdater/scriptVariables.py"
+    config_data = read_config_file()
+    scriptVariables = "https://downloads.mclemo.re/scripts/modUpdater/scriptVariables.json"
 
     # Download the scriptVariables file
     current_dir = os.getcwd()
@@ -95,6 +90,7 @@ if __name__ == "__main__":
 
     # Execute the scriptVariables.py file and retrieve variables
     if scriptVariablesFile:
+        config_data = read_config_file()
         variables = {}
         with open('scriptVariables.json', 'r') as f:
             variables = json.load(f)
@@ -107,7 +103,7 @@ if __name__ == "__main__":
 
     # Mod selection logic
     if variables:
-        modinstall.install(variables)
+        modinstall.install(variables, config_data)
     else:
         print("Error: Failed to retrieve variables from the server.")
 

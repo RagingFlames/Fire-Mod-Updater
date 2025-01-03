@@ -9,15 +9,15 @@ from typing import Final
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS: Final[list] = ['prompt', 'meta']
 
-def install(variables):
+def install(variables, config_data):
     # Print special message
     if variables['message']:
         print(variables['message'])
 
-    meta, selected_mod = menu_navigator(variables)
+    meta_data, selected_mod = menu_navigator(variables)
 
     # Finding install directoryselected_game
-    install_directory = get_install_directory(meta)
+    install_directory = get_install_directory(meta_data, config_data)
 
     # Use the selected key for the upcoming download
     archive_url = selected_mod[0]
@@ -55,9 +55,15 @@ def download_and_extract(url, destination):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-def get_install_directory(meta_data):
+def get_install_directory(meta_data, config_data):
     install_directory = meta_data.get('install_location')
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
+
+    # Check if an install location has been set in the config file
+    game_name = meta_data.get("name")
+    if game_name in config_data["custom_install_locations"]:
+        install_directory = config_data["custom_install_locations"][game_name]
+
 
     while not os.path.isdir(install_directory):
         print(f"The directory '{install_directory}' does not exist.")
