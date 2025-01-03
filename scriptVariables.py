@@ -1,26 +1,28 @@
-message = ""
-version = "3.0"
-packs = {
-    "Stellaris": {
-        "test0": ["example.com/Public/Hearts%20of%20Iron%20IV/invoke.7z", "lmao"],
-        "meta": {
-            "install_location": "~\\Documents\\Paradox Interactive\\Stellaris\\mod"
+{
+    "message": "",
+    "version": "3.0",
+    "packs": {
+        "Stellaris": {
+            "test0": ["example.com/Public/Hearts%20of%20Iron%20IV/invoke.7z", "lmao"],
+            "meta": {
+                "install_location": "~\\Documents\\Paradox Interactive\\Stellaris\\mod"
+            },
+            "prompt": "What modpack would you like to install for your game?"
         },
-        "prompt": "What modpack would you like to install for your game?"
-    },
-    "Hearts of Iron IV": {
-        "test0": ["example.com/Public/Hearts%20of%20Iron%20IV/invoke.7z", "lmao"],
-        "meta": {
-            "install_location": "~\\Documents\\Paradox Interactive\\Hearts of Iron IV\\mod"
+        "Hearts of Iron IV": {
+            "test0": ["example.com/Public/Hearts%20of%20Iron%20IV/invoke.7z", "lmao"],
+            "meta": {
+                "install_location": "~\\Documents\\Paradox Interactive\\Hearts of Iron IV\\mod"
+            },
+            "prompt": "What modpack would you like to install for your game?"
         },
-        "prompt": "What modpack would you like to install for your game?"
-    },
-    "Barotrauma": {
-        "test0": ["example.com/Public/Barotrauma/test.7z", "lmao"],
-        "meta": {
-            "install_location": "~\\Documents\\Barotrauma\\mod"
+        "Barotrauma": {
+            "test0": ["example.com/Public/Barotrauma/test.7z", "lmao"],
+            "meta": {
+                "install_location": "~\\Documents\\Barotrauma\\mod"
+            },
+            "prompt": "What modpack would you like to install for your game?"
         },
-        "prompt": "What modpack would you like to install for your game?"
-    },
-    "prompt" : "What game would you like to install a mod for?"
+        "prompt": "What game would you like to install a mod for?"
+    }
 }

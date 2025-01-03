@@ -1,6 +1,7 @@
 import math
 import os
 import sys
+import json
 import modinstall
 
 version = 3.0
@@ -64,8 +65,8 @@ if __name__ == "__main__":
     # Execute the scriptVariables.py file and retrieve variables
     if scriptVariablesFile:
         variables = {}
-        with open(scriptVariablesFile, "r") as f:
-            exec(f.read(), variables)
+        with open('scriptVariables.json', 'r') as f:
+            variables = json.load(f)
     else:
         print("An error has occurred, I could not acquire the variable file.")
         exit(9)
@@ -75,7 +76,7 @@ if __name__ == "__main__":
 
     # Mod selection logic
     if variables:
-        modinstall.all(variables)
+        modinstall.install(variables)
     else:
         print("Error: Failed to retrieve variables from the server.")
 
