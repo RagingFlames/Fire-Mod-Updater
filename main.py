@@ -5,6 +5,7 @@ import json
 from typing import Final
 from pathlib import Path
 import modinstall
+import requests
 import os
 
 VERSION: Final[float] = 3.0
@@ -37,10 +38,20 @@ def write_config(file_path):
     with open(file_path, "w") as file:
         json.dump(DEFAULT_CONFIG, file, indent=4)
     print("Please go update your config with the default settings your group uses.")
-    input("Press any key to exit...")
+    input("Press Enter to exit...")
     sys.exit(0)
 
-def download_file(url: str, destination: str) -> bool:
+def download_file(config_data: dict) -> bool:
+    destination = current_dir = os.getcwd()
+    url = config_data.get("scriptURL")
+    # Check if the user added their script URL
+    if url == "example.com":
+        print("You need to modify your config file to use the non-default url")
+        print("Who ever is making modpacks for you should know what the url is.")
+        # ToDo, add support for editing the config file here
+        input("Press Enter to exit...")
+        exit (10)
+
     try:
         response = requests.get(url)
         if response.status_code != 200:
@@ -82,11 +93,9 @@ def compare_versions(web_version):
 if __name__ == "__main__":
     # Open the config file
     config_data = read_config_file()
-    scriptVariables = "https://downloads.mclemo.re/scripts/modUpdater/scriptVariables.json"
 
     # Download the scriptVariables file
-    current_dir = os.getcwd()
-    scriptVariablesFile = download_file(scriptVariables, current_dir)
+    scriptVariablesFile = download_file(config_data)
 
     # Execute the scriptVariables.py file and retrieve variables
     if scriptVariablesFile:
