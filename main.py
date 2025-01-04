@@ -57,7 +57,7 @@ def download_file(config_data: dict) -> bool:
         if response.status_code != 200:
             print("Error: Failed to download the file.")
             return False
-        file_path = os.path.join(destination, "scriptVariables.py")
+        file_path = os.path.join(destination, "scriptVariables.json")
         with open(file_path, "wb") as f:
             f.write(response.content)
         print("Downloaded server updates.")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     # Download the scriptVariables file
     scriptVariablesFile = download_file(config_data)
 
-    # Execute the scriptVariables.py file and retrieve variables
+    # Read scriptVariables.json file and retrieve variables
     if scriptVariablesFile:
         config_data = read_config_file()
         variables = {}

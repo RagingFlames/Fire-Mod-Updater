@@ -1,13 +1,15 @@
 from getpass import getuser
 import os
-from pathlib import Path
+import pathlib
 import py7zr
-import tqdm
+from tqdm import tqdm
 import requests
+import json
 from typing import Final
 
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS: Final[list] = ['prompt', 'meta']
+RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
 def install(variables, config_data):
     # Print special message
@@ -65,18 +67,17 @@ def get_install_directory(meta_data, config_data):
     if game_name in config_data["custom_install_locations"]:
         install_directory = config_data["custom_install_locations"][game_name]
 
-    while not os.path.isdir(install_directory):
+    while not pathlib.Path(install_directory).resolve().is_dir():
         print(f"The directory '{install_directory}' does not exist.")
         print("This probably means you have a weird windows drive setup (Like having My Documents on a drive other than C)")
-        directory = input("Please copy and paste the correct mod directory for your game, or push enter to just have the modpack download to the current directory: ")
+        install_directory = input("Please copy and paste the correct mod directory for your game, or push enter to just have the modpack download to the current directory: ")
+        custom_install = True
         # Use the current directory if the user presses Enter
-        if directory.strip() == "":
-            directory = os.getcwd()
-            custom_install = True
+        if install_directory.strip() == "":
+            install_directory = os.getcwd()
             break
         
     if custom_install:
-        print(f"Selected install location: {install_directory}")
         
         # Ask user if they want to write this custom directory to the config file
         response = input("Do you want to save this custom install location to your config? (y/n): ").lower()
