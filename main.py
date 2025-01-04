@@ -1,88 +1,87 @@
 import math
 import os
 import sys
-
-version = 2.3
-
-# Check if required imports are available
-try:
-    from pathlib import Path
-except ImportError:
-    print("Error: The 'pathlib' module is missing. Please install it by running 'pip install pathlib'.")
-    sys.exit(1)
-
-try:
-    import requests
-except ImportError:
-    print("Error: The 'requests' module is missing. Please install it by running 'pip install requests'.")
-    sys.exit(1)
-
-try:
-    from tqdm import tqdm
-except ImportError:
-    print("Error: The 'tqdm' module is missing. Please install it by running 'pip install tqdm'.")
-    sys.exit(1)
-
-try:
-    import py7zr
-except ImportError:
-    print("Error: The 'py7zr' module is missing. Please install it by running 'pip install py7zr'.")
-    sys.exit(1)
-
-try:
-    from getpass import getuser
-except ImportError:
-    print("Error: The 'getpass' module is missing which probably means something is very wrong.")
-    sys.exit(1)
-
-
-def download_file(url, destination):
-    download_response = requests.get(url)
-    if download_response.status_code != 200:
-        print("Error: Failed to download the file.")
-        return
-    file_path = os.path.join(destination, "scriptVariables.py")
-    with open(file_path, "wb") as f:
-        f.write(download_response.content)
-    print("Downloaded server updates.")
-    return file_path
-
-
+import json
+from typing import Final
 from pathlib import Path
+import modinstall
+import requests
+import os
 
+VERSION: Final[float] = 3.0
+RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
-def download_and_extract(url, destination):
-    download_extract_response = requests.get(url, stream=True)
-    if download_extract_response.status_code != 200:
-        print("Error: Failed to download the archive.")
-        return
-    archive_path = os.path.join(destination, "mod.7z")
-    total_size = int(download_extract_response.headers.get("content-length", 0))
-    block_size = 1024
-    progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
-    with open(archive_path, "wb") as f:
-        for data in download_extract_response.iter_content(block_size):
-            progress_bar.update(len(data))
-            f.write(data)
-    progress_bar.close()
-    print("Downloaded the archive.")
-    print("Beginning extraction, this may take a few minutes.")
-    with py7zr.SevenZipFile(archive_path, mode='r') as z:
-        z.extractall(path=destination)
-    print("Extracted the contents.")
+def read_config_file(): 
+    try:
+        # Check if the file exists
+        if os.path.exists(RUNTIME_CONFIG_PATH):
+            with open(RUNTIME_CONFIG_PATH, "r") as file:
+                try:
+                    config_data = json.load(file)
+                except json.JSONDecodeError:
+                    print("Error decoding JSON, resetting to default config.")
+                    write_config(RUNTIME_CONFIG_PATH)
+        else:
+            print(f"Config file not found. Creating {RUNTIME_CONFIG_PATH} with default values.")
+            write_config(RUNTIME_CONFIG_PATH)
+    except Exception as e:
+        print("An error occurred:", str(e))
+    return config_data
 
-    os.remove(archive_path)  # Delete the archive file
-    print("Deleted the archive file.")
+def write_config(file_path):
+    # Default dictionary to populate the JSON file if it doesn't exist
+    DEFAULT_CONFIG: Final = {
+        "scriptURL": "example.com",
+        "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
+        "custom_install_locations": {}
+    }
+    # Write the default config to the file
+    with open(file_path, "w") as file:
+        json.dump(DEFAULT_CONFIG, file, indent=4)
+    print("Please go update your config with the default settings your group uses.")
+    input("Press Enter to exit...")
+    sys.exit(0)
 
+def get_user_url(config_data):
+    print("The updates link is not working. Who ever is making modpacks for you should know what the url is.")
+    url = input("Please enter the correct URL: ")
+    config_data["scriptURL"] = url
+    
+    with open(RUNTIME_CONFIG_PATH, "w") as f:
+        json.dump(config_data, f, indent=4)
+    
+    print(f"Updated scriptURL in config file to {url}")
+    
+    return download_file(config_data)
 
-def compare_versions(web_version):
-    if variables['version']:
-        if variables['version'] != str(version):
+def download_file(config_data: dict) -> bool:
+    destination = current_dir = os.getcwd()
+    url = config_data.get("scriptURL")
+    # Check if the user added their script URL
+    if url == "example.com":
+        return get_user_url(config_data)
+    try:
+        response = requests.get(url)
+        if response.status_code != 200:
+            print("Error: Failed to download the file.")
+            return False
+        file_path = os.path.join(destination, "scriptVariables.json")
+        with open(file_path, "wb") as f:
+            f.write(response.content)
+        print("Downloaded server updates.")
+        return True
+    except Exception as e:
+        print(f"An error occurred while downloading updates: {e}")
+        return get_user_url(config_data)
+
+def compare_versions(web_version, github_link):
+    if 'version' in variables:
+        if variables['version'] != str(VERSION):
             print("It looks like there is an update available for this script.")
-            print("You have version " + str(version) + " but the latest version is " + str(variables['version']))
+            print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
             print("Go to the following website to get the latest version")
-            print("https://github.com/RagingFlames/Paradox-Mod-Updater/releases")
-            local_major, local_minor = map(int, str(version).split('.'))
+            print(github_link)
+            local_major, local_minor = map(int, str(VERSION).split('.'))
             web_major, web_minor = map(int, web_version.split('.'))
 
             if web_major - local_major >= 1:
@@ -98,78 +97,34 @@ def compare_versions(web_version):
                         sys.exit(1)
                     else:
                         print("Invalid input. Please answer with 'y' or 'n'.")
-            print("Go to the pinned post and redownload the script to grab the new version")
-
 
 if __name__ == "__main__":
-    scriptVariables = "https://downloads.mclemo.re/Public/ModUpdater/scriptVariables.py"
-    archive_url = None
+    # Open the config file
+    config_data = read_config_file()
 
     # Download the scriptVariables file
-    current_dir = os.getcwd()
-    scriptVariablesFile = download_file(scriptVariables, current_dir)
+    scriptVariablesFile = download_file(config_data)
 
-    # Execute the scriptVariables.py file and retrieve variables
+    # Read scriptVariables.json file and retrieve variables
     if scriptVariablesFile:
-        url_module = {}
-        with open(scriptVariablesFile, "r") as f:
-            exec(f.read(), url_module)
-        variables = url_module.copy()
+        config_data = read_config_file()
+        variables = {}
+        with open('scriptVariables.json', 'r') as f:
+            variables = json.load(f)
     else:
         print("An error has occurred, I could not acquire the variable file.")
         exit(9)
 
     # Check version number.
-    compare_versions(str(variables['version']))
+    compare_versions(str(variables['version']), config_data["github"])
 
     # Mod selection logic
     if variables:
-
-        # Print special message
-        if variables['message']:
-            print(variables['message'])
-
-        # Select a game
-        print("What game would you like to install a mod for?")
-        for i, key in enumerate(variables['packs'].keys()):
-            print(f"{i}: {key}")
-
-        selection = input("Enter the number on the left corresponding to the game you want to install a modpack for: ")
-        selected_game = list(variables['packs'].keys())[int(selection)]
-
-        print("Mod packs available for:", selected_game)
-
-        # Select a Mod
-        for i, key in enumerate(variables['packs'].get(selected_game).keys()):
-            print(f"{i}: {key}")
-        selection = input("Enter the number on the left corresponding to the mod pack you want to install, 0 is the latest one: ")
-        selected_mod = list(variables['packs'].get(selected_game).keys())[int(selection)]
-
-        # Finding directory
-        username = getuser()
-        documents_path = Path.home() / "Documents"
-        destination = documents_path / "Paradox Interactive" / selected_game / "mod"
-        if os.path.exists(destination):
-            print("Using C drive for installation")
-        else:
-            destination = os.path.join("D:\\", "Users", username, "Documents", "Paradox Interactive", selected_game, "mod")
-            if os.path.exists(destination):
-                print("Using D drive for installation")
-            else:
-                print("I couldn't find your game folder on your C or D drive")
-                print("The mod pack will be downloaded to the current directory")
-                destination = os.getcwd()
-
-        # Use the selected key for the upcoming download
-        archive_url = variables['packs'].get(selected_game).get(selected_mod)[0]
-        download_and_extract(archive_url, destination)
-
-        # Print the hash for this mod pack
-        print("The hash for this mod pack is: " + str(variables['packs'].get(selected_game).get(selected_mod)[1]))
-
+        modinstall.install(variables, config_data)
     else:
         print("Error: Failed to retrieve variables from the server.")
 
     print("Finished!")
     input("Press Enter to close the program...")
-    sys.exit(1)
+    sys.exit(0)
+

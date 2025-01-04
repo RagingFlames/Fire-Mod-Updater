@@ -1,1 +1,1 @@
-pyinstaller main.py --clean --onefile --console --name ParadoxModInstaller.exe --distpath .
+pyinstaller main.py --clean --onefile --console --name FireModInstaller.exe --distpath .

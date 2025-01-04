@@ -1,7 +1,7 @@
 #Project specific
 build/
 dist/
-ParadoxModInstaller.exe
+FireModInstaller.exe
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
