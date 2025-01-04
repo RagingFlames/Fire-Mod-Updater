@@ -32,6 +32,7 @@ def write_config(file_path):
     # Default dictionary to populate the JSON file if it doesn't exist
     DEFAULT_CONFIG: Final = {
         "scriptURL": "example.com",
+        "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
         "custom_install_locations": {}
     }
     # Write the default config to the file
@@ -41,17 +42,24 @@ def write_config(file_path):
     input("Press Enter to exit...")
     sys.exit(0)
 
+def get_user_url(config_data):
+    print("The updates link is not working. Who ever is making modpacks for you should know what the url is.")
+    url = input("Please enter the correct URL: ")
+    config_data["scriptURL"] = url
+    
+    with open(RUNTIME_CONFIG_PATH, "w") as f:
+        json.dump(config_data, f, indent=4)
+    
+    print(f"Updated scriptURL in config file to {url}")
+    
+    return download_file(config_data)
+
 def download_file(config_data: dict) -> bool:
     destination = current_dir = os.getcwd()
     url = config_data.get("scriptURL")
     # Check if the user added their script URL
     if url == "example.com":
-        print("You need to modify your config file to use the non-default url")
-        print("Who ever is making modpacks for you should know what the url is.")
-        # ToDo, add support for editing the config file here
-        input("Press Enter to exit...")
-        exit (10)
-
+        return get_user_url(config_data)
     try:
         response = requests.get(url)
         if response.status_code != 200:
@@ -63,16 +71,16 @@ def download_file(config_data: dict) -> bool:
         print("Downloaded server updates.")
         return True
     except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
+        print(f"An error occurred while downloading updates: {e}")
+        return get_user_url(config_data)
 
-def compare_versions(web_version):
+def compare_versions(web_version, github_link):
     if 'version' in variables:
         if variables['version'] != str(VERSION):
             print("It looks like there is an update available for this script.")
             print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
             print("Go to the following website to get the latest version")
-            print("https://github.com/RagingFlames/Paradox-Mod-Updater/releases")
+            print(github_link)
             local_major, local_minor = map(int, str(VERSION).split('.'))
             web_major, web_minor = map(int, web_version.split('.'))
 
@@ -108,7 +116,7 @@ if __name__ == "__main__":
         exit(9)
 
     # Check version number.
-    compare_versions(str(variables['version']))
+    compare_versions(str(variables['version']), config_data["github"])
 
     # Mod selection logic
     if variables:
