@@ -19,9 +19,9 @@
             "prompt": "What modpack would you like to install for your game?"
         },
         "Barotrauma": {
-            "test0": ["example.com/Public/Barotrauma/test.7z", "lmao"],
+            "test0": ["https://downloads.mclemo.re/scripts/modUpdater/Barotrauma/Installed.7z", "lmao"],
             "meta": {
-                "install_location": "~\\Documents\\Barotrauma\\mod",
+                "install_location": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Barotrauma\\LocalMods",
                 "name": "Barotrauma"
             },
             "prompt": "What modpack would you like to install for your game?"
