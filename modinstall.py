@@ -58,7 +58,7 @@ def download_and_extract(url, destination):
 
 def get_install_directory(meta_data, config_data):
     custom_install = False
-    install_directory = meta_data.get('install_location')
+    install_directory = meta_data.get('win_install_location')
     install_directory = install_directory.replace('~', str(pathlib.Path.home()))
 
     # Check if an install location has been set in the config file
