@@ -5,6 +5,7 @@ from tqdm import tqdm
 import requests
 import json
 from typing import Final
+import os
 
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS: Final[list] = ['prompt', 'meta']
