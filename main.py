@@ -1,9 +1,8 @@
-import math
-import os
+
+import pathlib
 import sys
 import json
 from typing import Final
-from pathlib import Path
 import modinstall
 import requests
 import os
@@ -55,7 +54,7 @@ def get_user_url(config_data):
     return download_file(config_data)
 
 def download_file(config_data: dict) -> bool:
-    destination = current_dir = os.getcwd()
+    destination = current_dir = pathlib.Path.cwd()
     url = config_data.get("scriptURL")
     # Check if the user added their script URL
     if url == "example.com":

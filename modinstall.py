@@ -1,5 +1,4 @@
 from getpass import getuser
-import os
 import pathlib
 import py7zr
 from tqdm import tqdm
@@ -9,7 +8,7 @@ from typing import Final
 
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS: Final[list] = ['prompt', 'meta']
-RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
+RUNTIME_CONFIG_PATH: Final[str] = str(pathlib.Path.home().joinpath(".modinstallrc"))
 
 def install(variables, config_data):
     # Print special message
@@ -17,7 +16,6 @@ def install(variables, config_data):
         print(variables['message'])
 
     meta_data, selected_mod = menu_navigator(variables)
-
     # Finding install directoryselected_game
     install_directory = get_install_directory(meta_data, config_data)
 
@@ -60,7 +58,7 @@ def download_and_extract(url, destination):
 def get_install_directory(meta_data, config_data):
     custom_install = False
     install_directory = meta_data.get('install_location')
-    install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
+    install_directory = install_directory.replace('~', str(pathlib.Path.home()))
 
     # Check if an install location has been set in the config file
     game_name = meta_data.get("name")
@@ -74,7 +72,7 @@ def get_install_directory(meta_data, config_data):
         custom_install = True
         # Use the current directory if the user presses Enter
         if install_directory.strip() == "":
-            install_directory = os.getcwd()
+            install_directory = pathlib.Path.cwd()
             break
         
     if custom_install:
@@ -88,7 +86,7 @@ def get_install_directory(meta_data, config_data):
         if response == 'y':
             # Update the config file
             game_name = meta_data.get("name")
-            config_data["custom_install_locations"][game_name] = install_directory
+            config_data["custom_install_locations"][game_name] = str(install_directory)
             with open(RUNTIME_CONFIG_PATH, "w") as f:
                 json.dump(config_data, f, indent=4)
             print(f"Saved custom install location for {game_name} to your config file.")
