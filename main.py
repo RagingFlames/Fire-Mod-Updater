@@ -75,28 +75,25 @@ def download_file(config_data: dict) -> bool:
         return get_user_url(config_data)
 
 def compare_versions(web_version, github_link):
-    if 'version' in variables:
-        if variables['version'] != str(VERSION):
-            print("It looks like there is an update available for this script.")
-            print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
-            print("Go to the following website to get the latest version")
-            print(github_link)
-            local_major, local_minor = map(int, str(VERSION).split('.'))
-            web_major, web_minor = map(int, web_version.split('.'))
+    if web_version != str(VERSION):
+        print("It looks like there is an update available for this script.")
+        print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
+        print("Go to the following website to get the latest version")
+        print(github_link)
+        local_major, local_minor = map(int, str(VERSION).split('.'))
+        web_major, web_minor = map(int, web_version.split('.'))
 
-            if web_major - local_major >= 1:
-                print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
-                while True:
-                    response = input("Do you want to continue? (y/n): ").lower()
-                    if response == 'y':
-                        print("Continuing...")
-                        # Perform additional tasks or actions here
-                        break
-                    elif response == 'n':
-                        print("Exiting...")
-                        sys.exit(1)
-                    else:
-                        print("Invalid input. Please answer with 'y' or 'n'.")
+        if web_major - local_major >= 1:
+            print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
+            while True:
+                response = input("Do you want to continue? (y/n): ").lower()
+                if response == 'y':
+                    break
+                elif response == 'n':
+                    print("Exiting...")
+                    sys.exit(1)
+                else:
+                    print("Invalid input. Please answer with 'y' or 'n'.")
 
 if __name__ == "__main__":
     # Open the config file
