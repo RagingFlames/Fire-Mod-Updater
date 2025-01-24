@@ -64,7 +64,7 @@ def get_install_directory(meta_data, config_data):
     if game_name in config_data["custom_install_locations"]:
         install_directory = config_data["custom_install_locations"][game_name]
 
-    while not pathlib.Path(install_directory).resolve().is_dir():
+    while not os.path.isdir(install_directory):
         print(f"The directory '{install_directory}' does not exist.")
         print("This probably means you have a weird windows drive setup (Like having My Documents on a drive other than C)")
         install_directory = input("Please copy and paste the correct mod directory for your game, or push enter to just have the modpack download to the current directory: ")
