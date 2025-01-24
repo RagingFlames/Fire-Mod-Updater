@@ -2,6 +2,5 @@ py7zr
 requests
 pypi-json
 tqdm
-pathlib
 typing
 pyinstaller

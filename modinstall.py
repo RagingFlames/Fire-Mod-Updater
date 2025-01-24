@@ -1,5 +1,4 @@
 from getpass import getuser
-import pathlib
 import py7zr
 from tqdm import tqdm
 import requests
@@ -8,7 +7,7 @@ import os
 
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS = ['prompt', 'meta']
-RUNTIME_CONFIG_PATH = str(pathlib.Path.home().joinpath(".modinstallrc"))
+RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
 def install(variables, config_data):
     # Print special message
@@ -58,7 +57,7 @@ def download_and_extract(url, destination):
 def get_install_directory(meta_data, config_data):
     custom_install = False
     install_directory = meta_data.get('win_install_location')
-    install_directory = install_directory.replace('~', str(pathlib.Path.home()))
+    install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
 
     # Check if an install location has been set in the config file
     game_name = meta_data.get("name")
@@ -72,7 +71,7 @@ def get_install_directory(meta_data, config_data):
         custom_install = True
         # Use the current directory if the user presses Enter
         if install_directory.strip() == "":
-            install_directory = pathlib.Path.cwd()
+            install_directory = os.getcwd()
             break
         
     if custom_install:
