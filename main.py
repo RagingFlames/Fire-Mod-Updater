@@ -2,13 +2,12 @@
 import pathlib
 import sys
 import json
-from typing import Final
 import modinstall
 import requests
 import os
 
-VERSION: Final[float] = 3.0
-RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
+VERSION = 3.0
+RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
 def read_config_file(): 
     try:
@@ -29,7 +28,7 @@ def read_config_file():
 
 def write_config(file_path):
     # Default dictionary to populate the JSON file if it doesn't exist
-    DEFAULT_CONFIG: Final = {
+    DEFAULT_CONFIG = {
         "scriptURL": "example.com",
         "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
         "custom_install_locations": {}

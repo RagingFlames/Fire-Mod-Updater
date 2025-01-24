@@ -4,3 +4,4 @@ pypi-json
 tqdm
 pathlib
 typing
+pyinstaller
