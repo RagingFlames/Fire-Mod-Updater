@@ -6,8 +6,15 @@ import modinstall
 import requests
 import os
 
-VERSION = 3.0
+VERSION = 3.2
 RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
+# Default dictionary to populate the JSON file if it doesn't exist
+DEFAULT_CONFIG = {
+    "scriptURL": "example.com",
+    "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
+    "custom_install_locations": {}
+}
+REQUIRED_KEYS = ["scriptURL", "github"]
 
 def read_config_file(): 
     try:
@@ -24,15 +31,22 @@ def read_config_file():
             write_config(RUNTIME_CONFIG_PATH)
     except Exception as e:
         print("An error occurred:", str(e))
+
+    # Check and make sure the required variables are present
+    make_changes = False
+    for key in REQUIRED_KEYS:
+        if key not in config_data:
+            print(f"Adding required key '{key}' to your config file.")
+            config_data[key] = DEFAULT_CONFIG[key]
+            make_changes = True
+    # Write changes back to the config file
+    if make_changes:
+        with open(RUNTIME_CONFIG_PATH, "w") as file:
+            json.dump(config_data, file)
+    
     return config_data
 
 def write_config(file_path):
-    # Default dictionary to populate the JSON file if it doesn't exist
-    DEFAULT_CONFIG = {
-        "scriptURL": "example.com",
-        "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
-        "custom_install_locations": {}
-    }
     # Write the default config to the file
     with open(file_path, "w") as file:
         json.dump(DEFAULT_CONFIG, file, indent=4)
