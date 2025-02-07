@@ -1,15 +1,13 @@
-import math
+
 import os
 import sys
 import json
-from typing import Final
-from pathlib import Path
 import modinstall
 import requests
 import os
 
-VERSION: Final[float] = 3.0
-RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
+VERSION = 3.0
+RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
 def read_config_file(): 
     try:
@@ -30,7 +28,7 @@ def read_config_file():
 
 def write_config(file_path):
     # Default dictionary to populate the JSON file if it doesn't exist
-    DEFAULT_CONFIG: Final = {
+    DEFAULT_CONFIG = {
         "scriptURL": "example.com",
         "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
         "custom_install_locations": {}
@@ -75,28 +73,26 @@ def download_file(config_data: dict) -> bool:
         return get_user_url(config_data)
 
 def compare_versions(web_version, github_link):
-    if 'version' in variables:
-        if variables['version'] != str(VERSION):
-            print("It looks like there is an update available for this script.")
-            print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
-            print("Go to the following website to get the latest version")
-            print(github_link)
-            local_major, local_minor = map(int, str(VERSION).split('.'))
-            web_major, web_minor = map(int, web_version.split('.'))
+    print("Using version " +  str(VERSION))
+    if web_version != str(VERSION):
+        print("It looks like there is an update available for this script.")
+        print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
+        print("Go to the following website to get the latest version")
+        print(github_link)
+        local_major, local_minor = map(int, str(VERSION).split('.'))
+        web_major, web_minor = map(int, web_version.split('.'))
 
-            if web_major - local_major >= 1:
-                print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
-                while True:
-                    response = input("Do you want to continue? (y/n): ").lower()
-                    if response == 'y':
-                        print("Continuing...")
-                        # Perform additional tasks or actions here
-                        break
-                    elif response == 'n':
-                        print("Exiting...")
-                        sys.exit(1)
-                    else:
-                        print("Invalid input. Please answer with 'y' or 'n'.")
+        if web_major - local_major >= 1:
+            print("You are behind by at least 1 major revision, it is highly recommended that exit and download the newer version")
+            while True:
+                response = input("Do you want to continue? (y/n): ").lower()
+                if response == 'y':
+                    break
+                elif response == 'n':
+                    print("Exiting...")
+                    sys.exit(1)
+                else:
+                    print("Invalid input. Please answer with 'y' or 'n'.")
 
 if __name__ == "__main__":
     # Open the config file
@@ -113,7 +109,8 @@ if __name__ == "__main__":
             variables = json.load(f)
     else:
         print("An error has occurred, I could not acquire the variable file.")
-        exit(9)
+        input("Press enter to exit")
+        sys.exit(9)
 
     # Check version number.
     compare_versions(str(variables['version']), config_data["github"])

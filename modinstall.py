@@ -1,15 +1,13 @@
 from getpass import getuser
-import os
-import pathlib
 import py7zr
 from tqdm import tqdm
 import requests
 import json
-from typing import Final
+import os
 
 # Don't print these items as options in the menu navigator
-EXCLUDED_MENU_ITEMS: Final[list] = ['prompt', 'meta']
-RUNTIME_CONFIG_PATH: Final[str] = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
+EXCLUDED_MENU_ITEMS = ['prompt', 'meta']
+RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 
 def install(variables, config_data):
     # Print special message
@@ -17,7 +15,6 @@ def install(variables, config_data):
         print(variables['message'])
 
     meta_data, selected_mod = menu_navigator(variables)
-
     # Finding install directoryselected_game
     install_directory = get_install_directory(meta_data, config_data)
 
@@ -59,7 +56,7 @@ def download_and_extract(url, destination):
 
 def get_install_directory(meta_data, config_data):
     custom_install = False
-    install_directory = meta_data.get('install_location')
+    install_directory = meta_data.get('win_install_location')
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
 
     # Check if an install location has been set in the config file
@@ -67,7 +64,7 @@ def get_install_directory(meta_data, config_data):
     if game_name in config_data["custom_install_locations"]:
         install_directory = config_data["custom_install_locations"][game_name]
 
-    while not pathlib.Path(install_directory).resolve().is_dir():
+    while not os.path.isdir(install_directory):
         print(f"The directory '{install_directory}' does not exist.")
         print("This probably means you have a weird windows drive setup (Like having My Documents on a drive other than C)")
         install_directory = input("Please copy and paste the correct mod directory for your game, or push enter to just have the modpack download to the current directory: ")
@@ -88,7 +85,7 @@ def get_install_directory(meta_data, config_data):
         if response == 'y':
             # Update the config file
             game_name = meta_data.get("name")
-            config_data["custom_install_locations"][game_name] = install_directory
+            config_data["custom_install_locations"][game_name] = str(install_directory)
             with open(RUNTIME_CONFIG_PATH, "w") as f:
                 json.dump(config_data, f, indent=4)
             print(f"Saved custom install location for {game_name} to your config file.")
