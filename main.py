@@ -73,6 +73,7 @@ def download_file(config_data: dict) -> bool:
         return get_user_url(config_data)
 
 def compare_versions(web_version, github_link):
+    print("Using version " +  str(VERSION))
     if web_version != str(VERSION):
         print("It looks like there is an update available for this script.")
         print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
@@ -108,7 +109,8 @@ if __name__ == "__main__":
             variables = json.load(f)
     else:
         print("An error has occurred, I could not acquire the variable file.")
-        exit(9)
+        input("Press enter to exit")
+        sys.exit(9)
 
     # Check version number.
     compare_versions(str(variables['version']), config_data["github"])
