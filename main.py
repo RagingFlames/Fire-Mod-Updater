@@ -89,6 +89,11 @@ def download_file(config_data: dict) -> bool:
 def compare_versions(web_version, github_link):
     print("Using version " +  str(VERSION))
     if web_version != str(VERSION):
+        if float(VERSION) > float(web_version):
+            print("Looks like you somehow have a newer version of the script than the server is aware of")
+            print("You'll probably be fine but should contact the server owner")
+            input("Press enter to continue...")
+            return
         print("It looks like there is an update available for this script.")
         print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
         print("Go to the following website to get the latest version")
