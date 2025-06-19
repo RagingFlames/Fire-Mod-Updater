@@ -16,7 +16,7 @@ DEFAULT_CONFIG = {
 }
 REQUIRED_KEYS = ["scriptURL", "github"]
 
-def read_config_file(): 
+def read_config_file():
     try:
         # Check if the file exists
         if os.path.exists(RUNTIME_CONFIG_PATH):
@@ -43,7 +43,7 @@ def read_config_file():
     if make_changes:
         with open(RUNTIME_CONFIG_PATH, "w") as file:
             json.dump(config_data, file)
-    
+
     return config_data
 
 def write_config(file_path):
@@ -58,12 +58,12 @@ def get_user_url(config_data):
     print("The updates link is not working. Who ever is making modpacks for you should know what the url is.")
     url = input("Please enter the correct URL: ")
     config_data["scriptURL"] = url
-    
+
     with open(RUNTIME_CONFIG_PATH, "w") as f:
         json.dump(config_data, f, indent=4)
-    
+
     print(f"Updated scriptURL in config file to {url}")
-    
+
     return download_file(config_data)
 
 def download_file(config_data: dict) -> bool:
