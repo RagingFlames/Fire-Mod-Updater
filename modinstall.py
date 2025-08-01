@@ -4,6 +4,7 @@ from tqdm import tqdm
 import requests
 import json
 import subprocess
+import config
 import os
 
 # Don't print these items as options in the menu navigator
@@ -31,7 +32,7 @@ def install(variables, config_data):
 
 
 def extract_with_7zip_gui(archive_path, output_dir, config_data):
-    seven_zip_path = r"C:\Program Files\7-Zip\7zG.exe"
+    seven_zip_path = os.path.abspath(config_data["7z_path"]) if config_data.get("7z_path") else config.find_7z_path()
 
     archive_path = os.path.abspath(archive_path)
     output_dir = os.path.abspath(output_dir)
