@@ -3,6 +3,8 @@ import py7zr
 from tqdm import tqdm
 import requests
 import json
+import subprocess
+import config
 import os
 
 # Don't print these items as options in the menu navigator
@@ -21,36 +23,94 @@ def install(variables, config_data):
     # Use the selected key for the upcoming download
     archive_url = selected_mod[0]
     try:
-        download_and_extract(archive_url, install_directory)
+        download_and_extract(archive_url, install_directory, config_data)
     except Exception as e:
         print(f"An error occurred: {e}")
 
     # Print the hash for this mod pack
     print("The hash for this mod pack is: " + str(selected_mod[1]))
 
-def download_and_extract(url, destination):
+
+def extract_with_7zip_gui(archive_path, output_dir, config_data):
+    seven_zip_path = os.path.abspath(config_data["7z_path"]) if config_data.get("7z_path") else config.find_7z_path()
+
+    archive_path = os.path.abspath(archive_path)
+    output_dir = os.path.abspath(output_dir)
+
+    if not os.path.exists(archive_path):
+        raise FileNotFoundError(f"Archive not found: {archive_path}")
+
+    if not os.path.exists(seven_zip_path):
+        raise FileNotFoundError(f"7-Zip GUI not found at: {seven_zip_path}")
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    command = [
+        seven_zip_path,
+        'x',
+        archive_path,
+        f'-o{output_dir}',
+        '-y'
+    ]
+
+    # Use run() instead of Popen for debugging
+    result = subprocess.run(command, capture_output=True, text=True)
+    #print("STDOUT:", result.stdout)
+    print(result.stderr)
+
+def download_and_extract(url, destination, config_data):
+    quick_extract = config_data.get("quick_extract", True)
+    if isinstance(quick_extract, bool):
+        pass  # Value is already a boolean
+    else:
+        quick_extract = eval(str(quick_extract))
     try:
-        download_extract_response = requests.get(url, stream=True)
-        if download_extract_response.status_code != 200:
+        # Ensure the destination directory exists
+        os.makedirs(destination, exist_ok=True)
+
+        # Download
+        response = requests.get(url, stream=True)
+        if response.status_code != 200:
             print("Error: Failed to download the archive.")
             return
+
         archive_path = os.path.join(destination, "mod.7z")
-        total_size = int(download_extract_response.headers.get("content-length", 0))
+        total_size = int(response.headers.get("content-length", 0))
         block_size = 1024
-        progress_bar = tqdm(total=total_size, unit="B", unit_scale=True, desc="Downloading")
-        with open(archive_path, "wb") as f:
-            for data in download_extract_response.iter_content(block_size):
-                progress_bar.update(len(data))
+
+        with open(archive_path, "wb") as f, tqdm(
+            total=total_size, unit="B", unit_scale=True, desc="Downloading"
+        ) as download_bar:
+            for data in response.iter_content(block_size):
                 f.write(data)
-        progress_bar.close()
+                download_bar.update(len(data))
+
         print("Downloaded the archive.")
         print("Beginning extraction, this may take a few minutes.")
-        with py7zr.SevenZipFile(archive_path, mode='r') as z:
-            z.extractall(path=destination)
+
+        # Extraction
+        try:
+            extract_with_7zip_gui(archive_path, destination, config_data)
+        except FileNotFoundError:
+            print("7-Zip not found, using py7zr...")
+            with py7zr.SevenZipFile(archive_path, mode='r') as z:
+                file_list = z.getnames()
+                info = z.archiveinfo()
+                if info.solid or quick_extract: # Check if this is a solid block archive
+                    print("Please wait until extraction is complete, do not close this window.")
+                    z.extractall(path=destination) # Quick extract
+                else: # Extract with progress bar (Slower)
+                    with tqdm(total=len(file_list), desc="Extracting", unit="file") as extract_bar:
+                        for filename in file_list:
+                            z.extract(targets=[filename], path=destination)
+                            extract_bar.update(1)
+                            z.reset()
+
         print("Extracted the contents.")
 
-        os.remove(archive_path)  # Delete the archive file
+        os.remove(archive_path)
         print("Deleted the archive file.")
+
     except Exception as e:
         print(f"An error occurred: {e}")
 
