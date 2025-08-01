@@ -3,6 +3,7 @@ import os
 import sys
 import json
 import modinstall
+import config
 import requests
 import os
 
@@ -13,11 +14,8 @@ DEFAULT_CONFIG = {
     "scriptURL": "example.com",
     "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
     "custom_install_locations": {},
-<<<<<<< HEAD
     "allow_custom_functions":False
-=======
     "quick_extract": "True"
->>>>>>> 4764de1 (Use 7zip if avalible add option for default extract with progress bar)
 }
 REQUIRED_KEYS = ["scriptURL", "github"]
 
@@ -76,7 +74,7 @@ def download_file(config_data: dict) -> bool:
     url = config_data.get("scriptURL")
     # Check if the user added their script URL
     if url == "example.com":
-        return get_user_url(config_data)
+        return config.get_user_url(config_data)
     try:
         response = requests.get(url)
         if response.status_code != 200:
@@ -89,7 +87,7 @@ def download_file(config_data: dict) -> bool:
         return True
     except Exception as e:
         print(f"An error occurred while downloading updates: {e}")
-        return get_user_url(config_data)
+        return config.get_user_url(config_data)
 
 def compare_versions(web_version, github_link):
     print("Using version " +  str(VERSION))
@@ -120,14 +118,14 @@ def compare_versions(web_version, github_link):
 
 if __name__ == "__main__":
     # Open the config file
-    config_data = read_config_file()
+    config_data = config.read_config_file()
 
     # Download the scriptVariables file
     scriptVariablesFile = download_file(config_data)
 
     # Read scriptVariables.json file and retrieve variables
     if scriptVariablesFile:
-        config_data = read_config_file()
+        config_data = config.read_config_file()
         variables = {}
         with open('scriptVariables.json', 'r') as f:
             variables = json.load(f)
