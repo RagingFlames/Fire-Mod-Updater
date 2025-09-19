@@ -12,7 +12,8 @@ RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc")
 DEFAULT_CONFIG = {
     "scriptURL": "example.com",
     "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
-    "custom_install_locations": {}
+    "custom_install_locations": {},
+    "allow_custom_functions":False
 }
 REQUIRED_KEYS = ["scriptURL", "github"]
 
