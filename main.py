@@ -6,7 +6,7 @@ import modinstall
 import requests
 import os
 
-VERSION = 3.2
+VERSION = 3.4
 RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 # Default dictionary to populate the JSON file if it doesn't exist
 DEFAULT_CONFIG = {
