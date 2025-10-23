@@ -116,7 +116,17 @@ def download_and_extract(url, destination, config_data):
 
 def get_install_directory(meta_data, config_data):
     custom_install = False
-    install_directory = meta_data.get('win_install_location')
+    system = platform.system()
+    if system == "Windows":
+        install_directory = get_platform_directory(meta_data, 'win_install_location')
+    elif system == "Linux":
+        install_directory = get_platform_directory(meta_data, 'lin_install_location')
+    elif system == "Darwin":
+        print("MacOS is unsupported")
+        sys.exit(1) 
+    else:
+        print("Unknown OS:", system)
+        sys.exit(1)
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
 
     # Check if an install location has been set in the config file
@@ -131,6 +141,7 @@ def get_install_directory(meta_data, config_data):
         custom_install = True
         # Use the current directory if the user presses Enter
         if install_directory.strip() == "":
+            print("Using current directory")
             install_directory = os.getcwd()
             break
         
