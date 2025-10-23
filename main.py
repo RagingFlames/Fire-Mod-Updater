@@ -7,7 +7,7 @@ import config
 import requests
 import os
 
-VERSION = 3.2
+VERSION = 4.0
 
 
 def download_file(config_data: dict) -> bool:
