@@ -122,8 +122,7 @@ def get_install_directory(meta_data, config_data):
     elif system == "Linux":
         install_directory = get_platform_directory(meta_data, 'lin_install_location')
     elif system == "Darwin":
-        print("MacOS is unsupported")
-        sys.exit(1) 
+        install_directory = get_platform_directory(meta_data, 'mac_install_location')
     else:
         print("Unknown OS:", system)
         sys.exit(1)
