@@ -6,6 +6,7 @@ import json
 import subprocess
 import config
 import os
+import platform
 
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS = ['prompt', 'meta']
@@ -118,11 +119,11 @@ def get_install_directory(meta_data, config_data):
     custom_install = False
     system = platform.system()
     if system == "Windows":
-        install_directory = get_platform_directory(meta_data, 'win_install_location')
+        install_directory = meta_data.get('win_install_location')
     elif system == "Linux":
-        install_directory = get_platform_directory(meta_data, 'lin_install_location')
+        install_directory = meta_data.get('lin_install_location')
     elif system == "Darwin":
-        install_directory = get_platform_directory(meta_data, 'mac_install_location')
+        install_directory = meta_data.get('mac_install_location')
     else:
         print("Unknown OS:", system)
         sys.exit(1)
