@@ -7,8 +7,67 @@ import config
 import requests
 import os
 
-VERSION = 3.2
+VERSION = 3.4
+RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
+# Default dictionary to populate the JSON file if it doesn't exist
+DEFAULT_CONFIG = {
+    "scriptURL": "example.com",
+    "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
+    "custom_install_locations": {},
+    "allow_custom_functions":False,
+    "quick_extract": "True"
+}
+REQUIRED_KEYS = ["scriptURL", "github"]
 
+def read_config_file():
+    try:
+        # Check if the file exists
+        if os.path.exists(RUNTIME_CONFIG_PATH):
+            with open(RUNTIME_CONFIG_PATH, "r") as file:
+                try:
+                    config_data = json.load(file)
+                except json.JSONDecodeError:
+                    print("Error decoding JSON, resetting to default config.")
+                    write_config(RUNTIME_CONFIG_PATH)
+        else:
+            print(f"Config file not found. Creating {RUNTIME_CONFIG_PATH} with default values.")
+            write_config(RUNTIME_CONFIG_PATH)
+    except Exception as e:
+        print("An error occurred:", str(e))
+
+    # Check and make sure the required variables are present
+    make_changes = False
+    for key in REQUIRED_KEYS:
+        if key not in config_data:
+            print(f"Adding required key '{key}' to your config file.")
+            config_data[key] = DEFAULT_CONFIG[key]
+            make_changes = True
+    # Write changes back to the config file
+    if make_changes:
+        with open(RUNTIME_CONFIG_PATH, "w") as file:
+            json.dump(config_data, file)
+
+    return config_data
+
+def write_config(file_path):
+    # Write the default config to the file
+    with open(file_path, "w") as file:
+        json.dump(DEFAULT_CONFIG, file, indent=4)
+    print("Please go update your config with the default settings your group uses.")
+    input("Press Enter to exit...")
+    sys.exit(0)
+
+def get_user_url(config_data):
+    print("The updates link is not working. Who ever is making modpacks for you should know what the url is.")
+    url = input("Please enter the correct URL: ")
+    config_data["scriptURL"] = url
+
+    with open(RUNTIME_CONFIG_PATH, "w") as f:
+        json.dump(config_data, f, indent=4)
+
+    print(f"Updated scriptURL in config file to {url}")
+
+    return download_file(config_data)
 
 def download_file(config_data: dict) -> bool:
     destination = current_dir = os.getcwd()
@@ -33,6 +92,11 @@ def download_file(config_data: dict) -> bool:
 def compare_versions(web_version, github_link):
     print("Using version " +  str(VERSION))
     if web_version != str(VERSION):
+        if float(VERSION) > float(web_version):
+            print("Looks like you somehow have a newer version of the script than the server is aware of")
+            print("You'll probably be fine but should contact the server owner")
+            input("Press enter to continue...")
+            return
         print("It looks like there is an update available for this script.")
         print("You have version " + str(VERSION) + " but the latest version is " + str(variables['version']))
         print("Go to the following website to get the latest version")
