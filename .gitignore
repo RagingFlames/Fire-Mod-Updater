@@ -1,8 +1,10 @@
-#Project specific
+# Project specific
 build/
 dist/
 FireModInstaller.exe
 
+# VSCode
+.vscode/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
