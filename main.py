@@ -7,17 +7,7 @@ import config
 import requests
 import os
 
-VERSION = 3.4
-RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
-# Default dictionary to populate the JSON file if it doesn't exist
-DEFAULT_CONFIG = {
-    "scriptURL": "example.com",
-    "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
-    "custom_install_locations": {},
-    "allow_custom_functions":False,
-    "quick_extract": "True"
-}
-REQUIRED_KEYS = ["scriptURL", "github"]
+VERSION = 4.0
 
 def read_config_file():
     try:
