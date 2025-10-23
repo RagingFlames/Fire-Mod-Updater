@@ -167,11 +167,18 @@ def menu_navigator(variables):
                     print(f"{i}: {key}")
             selection = input("Enter the number on the left corresponding to the item you want: ")
             selected_item = list(variables.keys())[int(selection)]
-            # Grab the latest metadata
-            if "meta" in variables:
-                meta = variables["meta"]
             # Set the new variables value
             variables = variables[selected_item]
+            # Grab the latest metadata
+            if "meta" in variables:
+                deep_merge(meta, variables["meta"])
         else:
             navigate = False
     return meta, variables
+
+def deep_merge(original, new):
+    for key, value in new.items():
+        if key in original and isinstance(original[key], dict) and isinstance(value, dict):
+            deep_merge(original[key], value)
+        else:
+            original[key] = value
