@@ -1,0 +1,1 @@
+pyinstaller main.py --clean --onefile --console --name FireModInstaller.run --distpath .
