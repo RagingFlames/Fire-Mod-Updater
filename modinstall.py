@@ -54,9 +54,7 @@ def extract_with_7zip_gui(archive_path, output_dir, config_data):
         '-y'
     ]
 
-    # Use run() instead of Popen for debugging
     result = subprocess.run(command, capture_output=True, text=True)
-    #print("STDOUT:", result.stdout)
     print(result.stderr)
 
 def download_and_extract(url, destination, config_data):
@@ -92,8 +90,8 @@ def download_and_extract(url, destination, config_data):
         # Extraction
         try:
             extract_with_7zip_gui(archive_path, destination, config_data)
-        except FileNotFoundError:
-            print("7-Zip not found, using py7zr...")
+        except (FileNotFoundError, NameError) as e:
+            print(f"7-Zip unavailable ({e}), using py7zr...")
             with py7zr.SevenZipFile(archive_path, mode='r') as z:
                 file_list = z.getnames()
                 info = z.archiveinfo()
@@ -106,7 +104,6 @@ def download_and_extract(url, destination, config_data):
                             z.extract(targets=[filename], path=destination)
                             extract_bar.update(1)
                             z.reset()
-
         print("Extracted the contents.")
 
         os.remove(archive_path)
