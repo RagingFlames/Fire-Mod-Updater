@@ -10,10 +10,10 @@
             },
             "meta": {
                 "win_install_location": "~/Documents/Paradox Interactive/Stellaris/mod",
-                "name": "Stellaris"
+                "name": "Stellaris",
+                "customActions": ["print('test message 3')"]
             },
-            "prompt": "What modpack would you like to install for your game?",
-            "customActions": ["print('test message 3')"]
+            "prompt": "What modpack would you like to install for your game?"            
         },
         "Hearts of Iron IV": {
             "test0": {
