@@ -1,11 +1,12 @@
 import requests
 import os.path
 import tqdm
+import shutil
 import random
 import string
 
 # Print message to the screen
-def prompt(message):
+def print(message):
         print(message)
 
 # Ask the user for information and store it in the specified variable
@@ -33,7 +34,54 @@ def download(url, file_name):
             print(f"An error occurred while downloading: {e}")
             return False
 
-# Download a single file and move it somewhere
-def move(file, destination):
-     
+# move a file or folder somewhere
+def move(file, destination, flags=""):
+    # Flags (case-sensitive, any order):
+    #     f - force overwrite
+    #     n - no clobber
+    #     p - create parent directories
+    #     b - backup existing destination
+    #     d - dry run
 
+    flags = set(flags)
+
+    # Conflict checks
+    if 'f' in flags and 'n' in flags:
+        raise ValueError("Conflicting flags: 'f' (force) and 'n' (no-clobber)")
+
+    if 'b' in flags and 'n' in flags:
+        raise ValueError("Conflicting flags: 'b' (backup) and 'n' (no-clobber)")
+
+    # Check source
+    if not os.path.exists(file):
+        raise FileNotFoundError(f"Source file does not exist: {file}")
+
+    # If destination is a directory, preserve filename
+    if os.path.isdir(destination):
+        destination = os.path.join(destination, os.path.basename(file))
+
+    dest_dir = os.path.dirname(destination) or "."
+
+    # Create parent directories
+    if 'p' in flags and not os.path.exists(dest_dir):
+        if 'd' not in flags:
+            os.makedirs(dest_dir, exist_ok=True)
+
+    # Setup destination
+    if os.path.exists(destination):
+        if 'b' in flags:
+            backup = destination + ".bak"
+            if 'd' not in flags:
+                shutil.move(destination, backup)
+
+        elif 'n' in flags:
+            raise FileExistsError(f"Destination exists (no-clobber): {destination}")
+
+        elif 'f' not in flags:
+            raise FileExistsError(
+                f"Destination exists (use 'f' to overwrite): {destination}"
+            )
+
+    # --- Perform move ---
+    if 'd' not in flags:
+        shutil.move(file, destination)
