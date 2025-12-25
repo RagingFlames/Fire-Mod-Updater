@@ -11,7 +11,8 @@ DEFAULT_CONFIG = {
     "scriptURL": "example.com",
     "github": "https://github.com/RagingFlames/Fire-Mod-Updater/releases/latest",
     "custom_install_locations": {},
-    "quick_extract": "True"
+    "quick_extract": "True",
+    "actions": "False"
 }
 REQUIRED_KEYS = ["scriptURL", "github"]
 
