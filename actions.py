@@ -7,15 +7,16 @@ import string
 
 # Print message to the screen
 def print(message):
-        print(message)
+        print(message[0])
 
 # Ask the user for information and store it in the specified variable
 def ask(message):
-    response = input(message)
+    response = input(message[0])
 
 # Download file to downloads folder
-def download(url, file_name):
-        #random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+def download(arguments):
+        url = arguments[0]
+        file_name = arguments[1]
         try:
             download_response = requests.get(url, stream=True)
             if download_response.status_code != 200:
@@ -35,15 +36,16 @@ def download(url, file_name):
             return False
 
 # move a file or folder somewhere
-def move(file, destination, flags=""):
+def move(arguments):
     # Flags (case-sensitive, any order):
     #     f - force overwrite
     #     n - no clobber
     #     p - create parent directories
     #     b - backup existing destination
     #     d - dry run
-
-    flags = set(flags)
+    file = arguments[0]
+    destination = arguments[1]
+    flags = set(arguments[2])
 
     # Conflict checks
     if 'f' in flags and 'n' in flags:
@@ -82,6 +84,5 @@ def move(file, destination, flags=""):
                 f"Destination exists (use 'f' to overwrite): {destination}"
             )
 
-    # --- Perform move ---
     if 'd' not in flags:
         shutil.move(file, destination)
