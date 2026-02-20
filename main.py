@@ -9,36 +9,6 @@ import os
 
 VERSION = 4.0
 
-def read_config_file():
-    try:
-        # Check if the file exists
-        if os.path.exists(RUNTIME_CONFIG_PATH):
-            with open(RUNTIME_CONFIG_PATH, "r") as file:
-                try:
-                    config_data = json.load(file)
-                except json.JSONDecodeError:
-                    print("Error decoding JSON, resetting to default config.")
-                    write_config(RUNTIME_CONFIG_PATH)
-        else:
-            print(f"Config file not found. Creating {RUNTIME_CONFIG_PATH} with default values.")
-            write_config(RUNTIME_CONFIG_PATH)
-    except Exception as e:
-        print("An error occurred:", str(e))
-
-    # Check and make sure the required variables are present
-    make_changes = False
-    for key in REQUIRED_KEYS:
-        if key not in config_data:
-            print(f"Adding required key '{key}' to your config file.")
-            config_data[key] = DEFAULT_CONFIG[key]
-            make_changes = True
-    # Write changes back to the config file
-    if make_changes:
-        with open(RUNTIME_CONFIG_PATH, "w") as file:
-            json.dump(config_data, file)
-
-    return config_data
-
 def write_config(file_path):
     # Write the default config to the file
     with open(file_path, "w") as file:
