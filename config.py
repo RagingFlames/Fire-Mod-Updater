@@ -1,9 +1,9 @@
-import winreg
 import os
 import sys
 import json
 import main
-
+if 'nt' in sys.builtin_module_names:
+    import winreg
 
 RUNTIME_CONFIG_PATH = str(os.path.join(os.path.expanduser("~"), ".modinstallrc"))
 # Default dictionary to populate the JSON file if it doesn't exist

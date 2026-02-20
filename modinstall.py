@@ -5,7 +5,9 @@ import requests
 import json
 import subprocess
 import config
+import sys
 import os
+import platform
 
 # Don't print these items as options in the menu navigator
 EXCLUDED_MENU_ITEMS = ['prompt', 'meta']
@@ -53,9 +55,7 @@ def extract_with_7zip_gui(archive_path, output_dir, config_data):
         '-y'
     ]
 
-    # Use run() instead of Popen for debugging
     result = subprocess.run(command, capture_output=True, text=True)
-    #print("STDOUT:", result.stdout)
     print(result.stderr)
 
 def download_and_extract(url, destination, config_data):
@@ -91,8 +91,8 @@ def download_and_extract(url, destination, config_data):
         # Extraction
         try:
             extract_with_7zip_gui(archive_path, destination, config_data)
-        except FileNotFoundError:
-            print("7-Zip not found, using py7zr...")
+        except (FileNotFoundError, NameError) as e:
+            print(f"7-Zip unavailable ({e}), using py7zr...")
             with py7zr.SevenZipFile(archive_path, mode='r') as z:
                 file_list = z.getnames()
                 info = z.archiveinfo()
@@ -105,7 +105,6 @@ def download_and_extract(url, destination, config_data):
                             z.extract(targets=[filename], path=destination)
                             extract_bar.update(1)
                             z.reset()
-
         print("Extracted the contents.")
 
         os.remove(archive_path)
@@ -116,7 +115,16 @@ def download_and_extract(url, destination, config_data):
 
 def get_install_directory(meta_data, config_data):
     custom_install = False
-    install_directory = meta_data.get('win_install_location')
+    system = platform.system()
+    if system == "Windows":
+        install_directory = meta_data.get('win_install_location')
+    elif system == "Linux":
+        install_directory = meta_data.get('lin_install_location')
+    elif system == "Darwin":
+        install_directory = meta_data.get('mac_install_location')
+    else:
+        print("Unknown OS:", system)
+        sys.exit(1)
     install_directory = install_directory.replace('~', str(os.path.expanduser('~')))
 
     # Check if an install location has been set in the config file
@@ -131,6 +139,7 @@ def get_install_directory(meta_data, config_data):
         custom_install = True
         # Use the current directory if the user presses Enter
         if install_directory.strip() == "":
+            print("Using current directory")
             install_directory = os.getcwd()
             break
         
@@ -167,11 +176,18 @@ def menu_navigator(variables):
                     print(f"{i}: {key}")
             selection = input("Enter the number on the left corresponding to the item you want: ")
             selected_item = list(variables.keys())[int(selection)]
-            # Grab the latest metadata
-            if "meta" in variables:
-                meta = variables["meta"]
             # Set the new variables value
             variables = variables[selected_item]
+            # Grab the latest metadata
+            if "meta" in variables:
+                deep_merge(meta, variables["meta"])
         else:
             navigate = False
     return meta, variables
+
+def deep_merge(original, new):
+    for key, value in new.items():
+        if key in original and isinstance(original[key], dict) and isinstance(value, dict):
+            deep_merge(original[key], value)
+        else:
+            original[key] = value
