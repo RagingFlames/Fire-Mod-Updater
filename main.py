@@ -7,7 +7,7 @@ import config
 import requests
 import os
 
-VERSION = 4.0
+VERSION = 4.1
 
 def download_file(config_data: dict) -> bool:
     destination = current_dir = os.getcwd()
