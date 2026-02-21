@@ -9,26 +9,6 @@ import os
 
 VERSION = 4.0
 
-def write_config(file_path):
-    # Write the default config to the file
-    with open(file_path, "w") as file:
-        json.dump(DEFAULT_CONFIG, file, indent=4)
-    print("Please go update your config with the default settings your group uses.")
-    input("Press Enter to exit...")
-    sys.exit(0)
-
-def get_user_url(config_data):
-    print("The updates link is not working. Who ever is making modpacks for you should know what the url is.")
-    url = input("Please enter the correct URL: ")
-    config_data["scriptURL"] = url
-
-    with open(RUNTIME_CONFIG_PATH, "w") as f:
-        json.dump(config_data, f, indent=4)
-
-    print(f"Updated scriptURL in config file to {url}")
-
-    return download_file(config_data)
-
 def download_file(config_data: dict) -> bool:
     destination = current_dir = os.getcwd()
     url = config_data.get("scriptURL")
