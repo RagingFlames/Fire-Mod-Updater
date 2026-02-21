@@ -2,6 +2,7 @@
 build/
 dist/
 FireModInstaller.exe
+FireModInstaller.run
 
 # VSCode
 .vscode/
