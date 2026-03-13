@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build Executables
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
+
   build-windows:
     runs-on: windows-latest
 
@@ -13,10 +14,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
         run: |
@@ -24,12 +25,41 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
-      - name: Build executable
+      - name: Build Windows EXE
         run: |
-          pyinstaller --onefile main.py
+          pyinstaller --onefile --name FireModInstaller main.py
 
-      - name: Upload artifact
+      - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-exe
           path: dist/FireModInstaller.exe
+
+
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build Linux Binary
+        run: |
+          pyinstaller --onefile --name FireModInstaller main.py
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-binary
+          path: dist/FireModInstaller
