@@ -6,6 +6,7 @@ import modinstall
 import config
 import requests
 import os
+import traceback
 
 VERSION = 4.1
 
@@ -57,33 +58,40 @@ def compare_versions(web_version, github_link):
                     print("Invalid input. Please answer with 'y' or 'n'.")
 
 if __name__ == "__main__":
-    # Open the config file
-    config_data = config.read_config_file()
 
-    # Download the scriptVariables file
-    scriptVariablesFile = download_file(config_data)
+    try:
+        main()   # your program entry point
 
-    # Read scriptVariables.json file and retrieve variables
-    if scriptVariablesFile:
+        # Open the config file
         config_data = config.read_config_file()
-        variables = {}
-        with open('scriptVariables.json', 'r') as f:
-            variables = json.load(f)
-    else:
-        print("An error has occurred, I could not acquire the variable file.")
-        input("Press enter to exit")
-        sys.exit(9)
 
-    # Check version number.
-    compare_versions(str(variables['version']), config_data["github"])
+        # Download the scriptVariables file
+        scriptVariablesFile = download_file(config_data)
 
-    # Mod selection logic
-    if variables:
-        modinstall.install(variables, config_data)
-    else:
-        print("Error: Failed to retrieve variables from the server.")
+        # Read scriptVariables.json file and retrieve variables
+        if scriptVariablesFile:
+            config_data = config.read_config_file()
+            variables = {}
+            with open('scriptVariables.json', 'r') as f:
+                variables = json.load(f)
+        else:
+            print("An error has occurred, I could not acquire the variable file.")
+            input("Press enter to exit")
+            sys.exit(9)
+
+        # Check version number.
+        compare_versions(str(variables['version']), config_data["github"])
+
+        # Mod selection logic
+        if variables:
+            modinstall.install(variables, config_data)
+        else:
+            print("Error: Failed to retrieve variables from the server.")
+
+    except Exception as e:
+        print("ERROR:", e)
+        traceback.print_exc()
 
     print("Finished!")
     input("Press Enter to close the program...")
     sys.exit(0)
-
