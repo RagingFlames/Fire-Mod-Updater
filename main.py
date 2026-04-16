@@ -60,8 +60,6 @@ def compare_versions(web_version, github_link):
 if __name__ == "__main__":
 
     try:
-        main()   # your program entry point
-
         # Open the config file
         config_data = config.read_config_file()
 

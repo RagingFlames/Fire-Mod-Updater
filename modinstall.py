@@ -91,7 +91,7 @@ def download_and_extract(url, destination, config_data):
         # Extraction
         try:
             extract_with_7zip_gui(archive_path, destination, config_data)
-        except (FileNotFoundError, NameError) as e:
+        except (FileNotFoundError, NameError, TypeError) as e:
             print(f"7-Zip unavailable ({e}), using py7zr...")
             with py7zr.SevenZipFile(archive_path, mode='r') as z:
                 file_list = z.getnames()
